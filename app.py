@@ -1,4 +1,4 @@
-from cs50 import SQL
+import sqlite3
 from flask import Flask, redirect, render_template, request, session, flash, jsonify
 from flask_session import Session
 from werkzeug.security import generate_password_hash,check_password_hash

@@ -55,7 +55,7 @@ def login():
         # Query database for username
         rows = cur.execute("SELECT * FROM users WHERE username = ?", (username,))
         print("rows: ", rows, file=sys.stdout) # need to delete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        print("rows.fetchone(): ", len(rows.fetchone()), file=sys.stdout) # need to delete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        print("rows.fetchall(): ", rows.fetchall(), file=sys.stdout) # need to delete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if len(rows) == 1:
             if check_password_hash(rows[0]["hash"], (password,)):
 

@@ -18,6 +18,9 @@ Session(app)
 # Setup to use SQLite database
 con = sql3.connect("movie-recommendation.db", check_same_thread=False)
 cur = con.cursor()
+res = cur.execute("SELECT name FROM sqlite_master")
+res.fetchone()
+print("res.fetchone(): ", res.fetchone(), file=sys.stdout)
 
 @app.after_request
 def after_request(response):
@@ -112,7 +115,9 @@ def register():
         else:
             # Registered successfully
             hash = generate_password_hash(password)
-            cur.execute("INSERT INTO users (username, hash) VALUES(?, ?)", (username,), (hash,))
+            print("username: ", username, file=sys.stdout)
+            print("hash: ", hash, file=sys.stdout)
+            cur.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, hash)
             flash("User has been registered successfully!")
             user_id = cur.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchall()[0][0]
             session["user_id"] = user_id

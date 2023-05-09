@@ -57,10 +57,10 @@ def login():
         print("fetchall(): ", rows.fetchall(), file=sys.stdout)
         print("fetchone(): ", rows.fetchone(), file=sys.stdout)
         if len(rows.fetchall()) == 1:
-            if check_password_hash(rows.fetchone()["hash"], (password,)):
+            if check_password_hash(rows.fetchall()[0][2], (password,)):
 
                 # Password correct
-                user_id = rows.fetchone()["id"]
+                user_id = rows.fetchall()[0][0]
                 session["user_id"] = user_id
                 return redirect("/")
 
@@ -112,7 +112,7 @@ def register():
             hash = generate_password_hash(password)
             cur.execute("INSERT INTO users (username, hash) VALUES(?, ?)", (username,), (hash,))
             flash("User has been registered successfully!")
-            user_id = cur.execute("SELECT id FROM users WHERE username = ?", (username,))[0]["id"]
+            user_id = cur.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchall()[0][0]
             session["user_id"] = user_id
             return redirect("/")
     else:

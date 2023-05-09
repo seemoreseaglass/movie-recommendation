@@ -54,9 +54,9 @@ def login():
         password = request.form.get("password")
 
         # Query database for username
-        rows = cur.execute("SELECT * FROM users WHERE username = ?", username)
+        rows = cur.execute("SELECT * FROM users WHERE username = ?", (username,))
         if len(rows) == 1:
-            if check_password_hash(rows[0]["hash"], password):
+            if check_password_hash(rows[0]["hash"], (password,)):
 
                 # Password correct
                 user_id = rows[0]["id"]
@@ -99,7 +99,7 @@ def register():
         password = request.form.get("password")
 
         # Query database for username
-        rows = cur.execute("SELECT * FROM users WHERE username = ?", username)
+        rows = cur.execute("SELECT * FROM users WHERE username = ?", (username,))
 
         if len(rows) > 0:
             # Username already exists
@@ -109,9 +109,9 @@ def register():
         else:
             # Registered successfully
             hash = generate_password_hash(password)
-            cur.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, hash)
+            cur.execute("INSERT INTO users (username, hash) VALUES(?, ?)", (username,), (hash,))
             flash("User has been registered successfully!")
-            user_id = cur.execute("SELECT id FROM users WHERE username = ?", username)[0]["id"]
+            user_id = cur.execute("SELECT id FROM users WHERE username = ?", (username,))[0]["id"]
             session["user_id"] = user_id
             return redirect("/")
     else:
@@ -142,11 +142,11 @@ def like():
             status = "no movie_id"
         else:
             movie_id = request.form.get("id")
-            if cur.execute("SELECT EXISTS (SELECT 1 FROM likes WHERE user_id = ? AND movie_id = ?)", user_id, movie_id):
-                cur.execute("DELETE FROM likes WHERE user_id = ? AND movie_id = ?", user_id, movie_id)
+            if cur.execute("SELECT EXISTS (SELECT 1 FROM likes WHERE user_id = ? AND movie_id = ?)", (user_id,), (movie_id,)):
+                cur.execute("DELETE FROM likes WHERE user_id = ? AND movie_id = ?", (user_id,), (movie_id,))
                 status = "unliked"
             else:
-                cur.execute("INSERT INTO likes (user_id, movie_id) VALUES(?, ?)", user_id, movie_id)
+                cur.execute("INSERT INTO likes (user_id, movie_id) VALUES(?, ?)", (user_id,), (movie_id,))
                 status = "liked"
         return jsonify(status)
     else:

@@ -52,6 +52,9 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
 
+        usersdata = cur.execute("SELECT * FROM users").fetchall()
+        print("userdata: ", usersdata, file=sys.stdout)
+
         # Query database for username
         rows = cur.execute("SELECT * FROM users WHERE username = ?", (username,))
         print("fetchall(): ", rows.fetchall(), file=sys.stdout)

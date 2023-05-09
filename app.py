@@ -15,7 +15,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Setup to use SQLite database
-con = sql3.connect("movie-recommendation.db")
+con = sql3.connect("movie-recommendation.db", check_same_thread=False)
 cur = con.cursor()
 
 @app.after_request

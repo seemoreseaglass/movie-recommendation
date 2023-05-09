@@ -1,3 +1,4 @@
+import sys
 import sqlite3 as sql3
 from flask import Flask, redirect, render_template, request, session, flash, jsonify
 from flask_session import Session
@@ -49,6 +50,7 @@ def login():
             return render_template("login.html")
 
         username = request.form.get("username")
+        print("username: ", username, file=sys.stdout)
         password = request.form.get("password")
 
         # Query database for username

@@ -58,8 +58,8 @@ def login():
         # Query database for username
         rows = cur.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchall()
         if len(rows) == 1:
-            print("rows.fetchall(): ", rows.fetchall(), file=sys.stdout)
-            if check_password_hash(rows[0][2], (password,)):
+            print("rows[0][2]: ", rows[0][2], file=sys.stdout)
+            if check_password_hash(rows[0][2], password):
 
                 # Password correct
                 user_id = rows[0][0]
@@ -68,8 +68,8 @@ def login():
 
             else:
                 # Password Incorrect
-                flash("Password incorrect")
-                return render_template("login.html", 'error')
+                flash("Password incorrect", 'error')
+                return render_template("login.html")
 
         else:
             flash("username doesn't exist", 'error')
@@ -102,7 +102,7 @@ def register():
         password = request.form.get("password")
 
         # Query database for username
-        rows = cur.execute("SELECT * FROM users WHERE username = ?", (username,))
+        rows = cur.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchall()
 
         if len(rows) > 0:
             # Username already exists

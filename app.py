@@ -54,13 +54,13 @@ def login():
 
         # Query database for username
         rows = cur.execute("SELECT * FROM users WHERE username = ?", (username,))
-        print("rows: ", rows, file=sys.stdout) # need to delete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        print("rows.fetchall(): ", rows.fetchall(), file=sys.stdout) # need to delete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if len(rows) == 1:
-            if check_password_hash(rows[0]["hash"], (password,)):
+        print("fetchall(): ", fetchall(), file=sys.stdout)
+        print("fetchone(): ", fetchone(), file=sys.stdout)
+        if len(rows.fetchall()) == 1:
+            if check_password_hash(rows.fetchone()["hash"], (password,)):
 
                 # Password correct
-                user_id = rows[0]["id"]
+                user_id = rows.fetchone()["id"]
                 session["user_id"] = user_id
                 return redirect("/")
 

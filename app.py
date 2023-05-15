@@ -1,8 +1,8 @@
 import sys
 import sqlite3 as sql3
+from werkzeug.security import generate_password_hash,check_password_hash
 from flask import Flask, redirect, render_template, request, session, flash, jsonify
 from flask_session import Session
-from werkzeug.security import generate_password_hash,check_password_hash
 
 # Configure app
 app = Flask(__name__)

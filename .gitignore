@@ -1,0 +1,8 @@
+# venv
+venv/
+
+# Ignore all pycache folder
+**/__pycache__/
+
+# gcloudignore
+.gcloudignore

@@ -6,3 +6,10 @@ venv/
 
 # gcloudignore
 .gcloudignore
+
+# Ignore all file in node_modules folder
+node_modules/
+
+# Ignore package-lock.json and package.json file
+package-lock.json
+package.json

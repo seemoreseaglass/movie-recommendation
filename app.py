@@ -1,8 +1,10 @@
 import sys
-import sqlite3 as sql3
+import sqlalchemy
+from sql_helpers import getconn
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask import Flask, redirect, render_template, request, session, flash, jsonify
 from flask_session import Session
+import json
 
 # Configure app
 app = Flask(__name__)
@@ -15,12 +17,13 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Setup to use SQLite database
-con = sql3.connect("movie-recommendation.db", check_same_thread=False)
-cur = con.cursor()
-res = cur.execute("SELECT name FROM sqlite_master")
-res.fetchone()
-print("res.fetchone(): ", res.fetchone(), file=sys.stdout)
+
+
+# Create connection pool
+pool = sqlalchemy.create_engine(
+    "mysql+pymysql://",
+    creator=getconn,
+)
 
 @app.after_request
 def after_request(response):
@@ -33,7 +36,13 @@ def after_request(response):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    if session.get("user_id") is None:
+        return redirect("/login")
+    else:
+        with pool.connect() as db_conn:
+            slct_user = sqlalchemy.text("SELECT username FROM users WHERE id = :id")
+            username = db_conn.execute(slct_user, {"id":session["user_id"]}).fetchall()[0][0]
+        return render_template("index.html", username=username)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -55,28 +64,28 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
 
-        usersdata = cur.execute("SELECT * FROM users").fetchall()
-        print("userdata: ", usersdata, file=sys.stdout)
+        with pool.connect() as db_conn:
+            
+            # Query database for username
+            slct_lgin = sqlalchemy.text("SELECT * FROM users WHERE username = :username") 
+            rows = db_conn.execute(slct_lgin, {"username":username}).fetchall()
+            if len(rows) == 1:
+                if check_password_hash(rows[0][2], password):
 
-        # Query database for username
-        rows = cur.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchall()
-        if len(rows) == 1:
-            print("rows[0][2]: ", rows[0][2], file=sys.stdout)
-            if check_password_hash(rows[0][2], password):
+                    # Password correct
+                    user_id = rows[0][0]
+                    session["user_id"] = user_id
+                    return redirect("/")
 
-                # Password correct
-                user_id = rows[0][0]
-                session["user_id"] = user_id
-                return redirect("/")
+                else:
+                    # Password Incorrect
+                    flash("Password incorrect", 'error')
+                    return render_template("login.html")
 
+  
             else:
-                # Password Incorrect
-                flash("Password incorrect", 'error')
+                flash("username doesn't exist", 'error')
                 return render_template("login.html")
-
-        else:
-            flash("username doesn't exist", 'error')
-            return render_template("login.html")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -104,24 +113,31 @@ def register():
         username = request.form.get("username")
         password = request.form.get("password")
 
-        # Query database for username
-        rows = cur.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchall()
+        # Check if username already exists
+        with pool.connect() as db_conn:
 
-        if len(rows) > 0:
-            # Username already exists
-            flash("This username already exists", 'error')
-            return redirect("/register")
+            # Query database for username
+            slct_register = sqlalchemy.text("SELECT * FROM users WHERE username = :username")
+            rows = db_conn.execute(slct_register, {"username":username}).fetchall()
 
-        else:
-            # Registered successfully
-            hash = generate_password_hash(password)
-            print("username: ", username, file=sys.stdout)
-            print("hash: ", hash, file=sys.stdout)
-            cur.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, hash)
-            flash("User has been registered successfully!")
-            user_id = cur.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchall()[0][0]
-            session["user_id"] = user_id
-            return redirect("/")
+            if len(rows) > 0:
+                # Username already exists
+                flash("This username already exists", 'error')
+                return redirect("/register")
+
+            else:
+                # Register new user
+                hash = generate_password_hash(password)
+                inst_register = sqlalchemy.text("INSERT INTO users (username, hash) VALUES(:username, :hash)")
+                db_conn.execute(inst_register, {"username":username, "hash":hash})
+                
+                # commit transaction
+                db_conn.commit()
+                flash("User has been registered successfully!")
+                id_register = sqlalchemy.text("SELECT id FROM users WHERE username = :username")
+                user_id = db_conn.execute(id_register, {"username": username}).fetchall()[0][0]
+                session["user_id"] = user_id
+                return redirect("/")
     else:
         return render_template("register.html")
 
@@ -130,33 +146,125 @@ def register():
 def search():
     q = request.args.get("q")
     if q:
-        shows = {}
-        if cur.execute("SELECT EXISTS (SELECT 1 FROM people WHERE name LIKE ?) AS person_exist", '%' + q + '%')[0]['person_exist'] == 1:
-            shows['stars'] = cur.execute("SELECT id,title FROM movies m INNER JOIN ratings r ON r.movie_id = m.id WHERE id IN (SELECT movie_id FROM stars s INNER JOIN people p ON p.id = s.person_id AND p.name LIKE ?) ORDER BY rating DESC LIMIT 5", '%' + q + '%')
+        with pool.connect() as db_conn:
 
-        if cur.execute("SELECT EXISTS (SELECT 1 FROM movies WHERE title LIKE ?) AS movie_exist", '%' + q + '%')[0]['movie_exist'] == 1:
-            shows['movies'] = cur.execute("SELECT id,title FROM movies m INNER JOIN ratings r ON r.movie_id = m.id WHERE title LIKE ? ORDER BY rating DESC LIMIT 5", '%' + q + '%')
+            shows = {'titles': [], 'names': []}
+            
+            q = '%' + q + '%'
+
+            # Query database by titles
+            create_txt = sqlalchemy.text("""
+                SELECT EXISTS (SELECT 1 FROM title_basics WHERE primaryTitle LIKE :primaryTitle) AS movie_exist
+            """)
+            result = db_conn.execute(create_txt, {"primaryTitle": q}).fetchall()
+
+            if result[0][0] == 1:
+                create_txt = sqlalchemy.text("""
+                SELECT id, primaryTitle FROM title_basics tb 
+                INNER JOIN title_rating tr ON tr.titleId = tb.id
+                WHERE primaryTitle LIKE :primaryTitle
+                ORDER BY tr.averageRating DESC LIMIT 5
+                """)
+                rows = db_conn.execute(create_txt, {"primaryTitle": q}).fetchall()
+                shows['titles'] = [{"titleId":row.id, "primaryTitle":row.primaryTitle} for row in rows]
+
+                # Check if titleId and userId exists in likes table 
+                for show in shows['titles']:
+                    create_txt = sqlalchemy.text("""
+                    SELECT EXISTS (SELECT 1 FROM likes WHERE titleId = :titleId AND userId = :userId) AS liked
+                    """)
+                    result = db_conn.execute(create_txt, {"titleId": show['titleId'], "userId": session["user_id"]}).fetchall()
+
+                    if result[0][0] == 1:
+                        show['liked'] = True
+
+                    else:
+                        show['liked'] = False
+
+            else:
+                print("No movie found")
+            
+            # Query database by names
+            create_txt = sqlalchemy.text("""
+                SELECT EXISTS (SELECT 1 FROM name_basics WHERE primaryName LIKE :primaryName) AS person_exist
+            """)
+            result = db_conn.execute(create_txt, {"primaryName": q}).fetchall()
+
+            if result[0][0] == 1:
+                create_txt = sqlalchemy.text("""
+                SELECT tb.id as titleId, tb.primaryTitle, nb.id as personId, nb.primaryName
+                FROM title_basics tb
+                INNER JOIN title_rating tr ON tr.titleId = tb.id
+                INNER JOIN title_principals tp ON tp.titleId = tb.id
+                INNER JOIN name_basics nb ON nb.id = tp.personId
+                AND nb.primaryName LIKE :primaryName
+                ORDER BY tr.averageRating DESC LIMIT 5
+                """)
+                rows = db_conn.execute(create_txt, {"primaryName": q}).fetchall()
+                shows["names"] = [{"titleId":row.titleId, "primaryTitle":row.primaryTitle, "personId":row.personId, "primaryName":row.primaryName} for row in rows]
+
+                # Check if titleId and userId exists in likes table
+                for show in shows["names"]:
+                    print(show)
+                    create_txt = sqlalchemy.text("""
+                    SELECT EXISTS (SELECT 1 FROM likes WHERE titleId = :titleId AND userId = :userId) AS liked
+                    """)
+                    result = db_conn.execute(create_txt, {"titleId": show["titleId"], "userId": session["user_id"]}).fetchall()
+
+                    if result[0][0] == 1:
+                        show["liked"] = True
+
+                    else:
+                        show["liked"] = False
+
+            else:
+                print("No person found")
 
     else:
         shows = {}
+    print("Number of titles: ", len(shows["titles"]))
+    print("Number of names: ", len(shows["names"]))
     return jsonify(shows)
 
 
 @app.route("/like")
 def like():
-    user_id = session['user_id']
-    if request.method == "POST":
-        if not request.form.get("id"):
-            status = "no movie_id"
+    # Get data from request
+    data = json.loads(request.data)
+    userId = session["user_id"]
+    titleId = data.get("titleId")
+    action = data.get("action")
+    
+    # Check if title_id and action are provided
+    if not title_id or not action:
+        return jsonify({"error": "Invalid request"})
+    
+    # Check if the user already liked the title
+    create_txt = sqlalchemy.text("""
+        SELECT EXISTS (SELECT 1 FROM likes WHERE user_id = :userId AND titleId = :titleId)
+        """)
+    
+    result = db_conn.execute(create_txt, {"userId": userId, "titleId": titleId}).fetchall()
+    print("result: ", result)
+    if action == "like":
+        if result[0][0] == 1:
+            return jsonify({"error": "Already liked"})
         else:
-            movie_id = request.form.get("id")
-            if cur.execute("SELECT EXISTS (SELECT 1 FROM likes WHERE user_id = ? AND movie_id = ?)", (user_id,), (movie_id,)):
-                cur.execute("DELETE FROM likes WHERE user_id = ? AND movie_id = ?", (user_id,), (movie_id,))
-                status = "unliked"
-            else:
-                cur.execute("INSERT INTO likes (user_id, movie_id) VALUES(?, ?)", (user_id,), (movie_id,))
-                status = "liked"
-        return jsonify(status)
+            create_txt = sqlalchemy.text("""
+                INSERT INTO likes (userId, titleId) VALUES (:userId, :titleId)
+                """)
+            db_conn.execute(create_txt, {"userId": userId, "titleId": titleId})
+            db_conn.commit()
+            return jsonify({"status": "Liked"})
+    elif action == "unlike":
+        if result[0][0] == 0:
+            return jsonify({"error": "You haven't liked this title"})
+        else:
+            create_txt = sqlalchemy.text("""
+                DELETE FROM likes WHERE userId = :userId AND titleId = :titleId
+                """)
+            db_conn.execute(create_txt, {"userId": userId, "titleId": titleId})
+            db_conn.commit()
+            return jsonify({"status": "Unliked"})
     else:
-        print("Not POST method")
-        return jsonify(status)
+        return jsonify({"error": "Invalid action"})

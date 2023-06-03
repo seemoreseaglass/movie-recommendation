@@ -4,8 +4,8 @@
 
 {% block body %}
 
-    {% if session["username"] %}
-        You are logged in as {{ session["username"] }}. <a href="/logout">Log out</a>.
+    {% if username %}
+        You are logged in as {{ username }}. <a href="/logout">Log out</a>.
     {% else %}
         You are not logged in.
 		<a href="/login">Log in</a>.
@@ -14,15 +14,15 @@
 
     <input class="input_query" autocomplete="off" autofocus placeholder="Query" type="text">
     <div>
-        <h2>Top movies starred by '<span class="q-input"></span>'</h2>
+        <h2>Top titles titled with '<span class="q-input"></span>'</h2>
         <table>
             <thead><tr><th>Title</th></tr></thead>
-            <tbody class="q-result-stars"></tbody>
+            <tbody class="q-result-titles"></tbody>
         </table>
-        <h2>Top movies titled with '<span class="q-input"></span>'</h2>
+        <h2>Top titles starred by '<span class="q-input"></span>'</h2>
         <table>
             <thead><tr><th>Title</th></tr></thead>
-            <tbody class="q-result-movies"></tbody>
+            <tbody class="q-result-names"></tbody>
         </table>
     </div>
 
@@ -32,41 +32,67 @@
         input.addEventListener('input', async function() {
             let response = await fetch('/search?q=' + input.value);
             let shows = await response.json();
-            let html_movie = '';
-            let html_star = '';
+            let html_titles = '';
+            let html_names = '';
             if (Object.keys(shows).length != 0) {
-                if (shows.movies.length != 0) {
-                    let movies = shows.movies;
-                    for (let i in movies) {
-                        let movie_id = movies[i].id;
-                        let title = movies[i].title.replace('<', '&lt;').replace('&', '&amp;');
-                        html_movie += '<tr><td>' + title + '</td><td><form action="/like" method="post"><input name="id" type="hidden" value="' + movie_id + '"><input class="like" type="submit" value="Like"></td></tr>';
+                if (shows.titles.length != 0) {
+                    let titles = shows.titles;
+                    for (let i in titles) {
+                        let titleId = titles[i].titleId;
+                        let title = titles[i].primaryTitle.replace('<', '&lt;').replace('&', '&amp;');
+                        let action = titles[i].liked ? 'unlike' : 'like';
+                        html_titles += '<tr><td>' + title + '</td><td><button class="like" onclick="likeAction(event, ' + {{ titleId }} +', ' + action + ')">' + action + '</button></td></tr>';
                     }
 
                 }
-                if (shows.stars.length != 0) {
-                    let stars = shows.stars;
-                    for (let i in stars) {
-                        let movie_id = stars[i].id;
-                        let title = stars[i].title.replace('<', '&lt;').replace('&', '&amp;');
-                        html_star += '<tr><td>' + title + '</td><td><form action="/like" method="post"><input name="id" type="hidden" value="' + movie_id + '"><input class="like" type="submit" value="Like"></td></tr>';
+                if (shows.names.length != 0) {
+                    let names = shows.names;
+                    for (let i in names) {
+                        let titleId = names[i].titleId;
+                        let title = names[i].primaryTitle.replace('<', '&lt;').replace('&', '&amp;');
+                        let personId = names[i].personId;
+                        let primaryName = names[i].primaryName.replace('<', '&lt;').replace('&', '&amp;');
+                        let action = names[i].liked ? 'unlike' : 'like';
+                        html_names += '<tr><td>' + title + '<p>' + personId + ':' + primaryName + '</p></td><td><button class="like" onclick="likeAction(event, ' + {{ titleId }} +', ' + action + ')">' + action + '</button></td></tr>';
                     }
                 }
             } else {
-                html_movie = 'Movies starred by"' + input.value + '" is not found';
-                html_star = '"' + input.value + '" is not found';
+                html_titles = 'titles including"' + input.value + '" is not found';
+                html_names = 'titles with principals named"' + input.value + '" is not found';
             }
-            document.querySelector('.q-result-movies').innerHTML = html_movie;
-            document.querySelector('.q-result-stars').innerHTML = html_star;
+            document.querySelector('.q-result-titles').innerHTML = html_titles;
+            document.querySelector('.q-result-names').innerHTML = html_names;
             document.querySelectorAll('.q-input')[0].innerHTML = input.value;
             document.querySelectorAll('.q-input')[1].innerHTML = input.value;
         });
 
-        // Will write codes to chage the status of like button (Liked/Unliked)
-        input.addEventListener('onclick', async function() {
-            let response = await fetch('/search?q=' + input.value);
-            let shows = await response.json();
-            let html_like =
+        // Like button
+        async function likeAction(event, titleId, action) {
+            event.preventDefault();
+    
+            let requestData = {
+                titleId: titleId,
+                action: action
+            };
+
+            let response = await fetch('/like', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            let result = await response.json();
+            if (result.status === 'Liked') {
+                event.target.textContent = 'unlike';
+                event.target.setAttribute('onclick', `likeAction(event, '${titleId}', 'unlike')`);
+            } else {
+                event.target.textContent = 'like';
+                event.target.setAttribute('onclick', `likeAction(event, '${titleId}', 'like')`);
+            }
+        }
+        
     </script>
 
 {% endblock %}

@@ -35,16 +35,19 @@
             let html_titles = '';
             let html_names = '';
             if (Object.keys(shows).length != 0) {
+
+                // Generate html for titles query
                 if (shows.titles.length != 0) {
                     let titles = shows.titles;
                     for (let i in titles) {
                         let titleId = titles[i].titleId;
                         let title = titles[i].primaryTitle.replace('<', '&lt;').replace('&', '&amp;');
                         let action = titles[i].liked ? 'unlike' : 'like';
-                        html_titles += '<tr><td>' + title + '</td><td><button class="like" onclick="likeAction(event, ' + {{ titleId }} +', ' + action + ')">' + action + '</button></td></tr>';
+                        html_titles += '<tr><td>' + title + '</td><td><button class="like" onclick="likeAction(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
                     }
 
                 }
+                // Generate html for principals query
                 if (shows.names.length != 0) {
                     let names = shows.names;
                     for (let i in names) {
@@ -53,13 +56,15 @@
                         let personId = names[i].personId;
                         let primaryName = names[i].primaryName.replace('<', '&lt;').replace('&', '&amp;');
                         let action = names[i].liked ? 'unlike' : 'like';
-                        html_names += '<tr><td>' + title + '<p>' + personId + ':' + primaryName + '</p></td><td><button class="like" onclick="likeAction(event, ' + {{ titleId }} +', ' + action + ')">' + action + '</button></td></tr>';
+                        html_names += '<tr><td>' + title + '<p>' + personId + ':' + primaryName + '</p></td><td><button class="like" onclick="likeAction(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
                     }
                 }
             } else {
                 html_titles = 'titles including"' + input.value + '" is not found';
                 html_names = 'titles with principals named"' + input.value + '" is not found';
             }
+
+            // Update page
             document.querySelector('.q-result-titles').innerHTML = html_titles;
             document.querySelector('.q-result-names').innerHTML = html_names;
             document.querySelectorAll('.q-input')[0].innerHTML = input.value;
@@ -69,12 +74,14 @@
         // Like button
         async function likeAction(event, titleId, action) {
             event.preventDefault();
-    
+            
+            // Send request
             let requestData = {
                 titleId: titleId,
                 action: action
             };
 
+            // Get response
             let response = await fetch('/like', {
                 method: 'POST',
                 headers: {
@@ -82,7 +89,8 @@
                 },
                 body: JSON.stringify(requestData)
             });
-
+            
+            // Update button
             let result = await response.json();
             if (result.status === 'Liked') {
                 event.target.textContent = 'unlike';

@@ -227,44 +227,64 @@ def search():
     return jsonify(shows)
 
 
-@app.route("/like")
+@app.route("/like", methods=["POST"])
 def like():
+    # Check if user is logged in
+    if session.get("user_id") is None:
+        return redirect("/login")
+    
     # Get data from request
     data = json.loads(request.data)
     userId = session["user_id"]
     titleId = data.get("titleId")
     action = data.get("action")
     
-    # Check if title_id and action are provided
-    if not title_id or not action:
+    # Check if titleId and action are provided
+    if not titleId or not action:
         return jsonify({"error": "Invalid request"})
     
-    # Check if the user already liked the title
-    create_txt = sqlalchemy.text("""
-        SELECT EXISTS (SELECT 1 FROM likes WHERE user_id = :userId AND titleId = :titleId)
-        """)
-    
-    result = db_conn.execute(create_txt, {"userId": userId, "titleId": titleId}).fetchall()
-    print("result: ", result)
-    if action == "like":
-        if result[0][0] == 1:
-            return jsonify({"error": "Already liked"})
+    # Connect to database
+    with pool.connect() as db_conn:
+
+        # Check if the user already liked the title
+        create_txt = sqlalchemy.text("""
+            SELECT EXISTS (SELECT 1 FROM likes WHERE userId = :userId AND titleId = :titleId)
+            """)
+        
+        result = db_conn.execute(create_txt, {"userId": userId, "titleId": titleId}).fetchall()
+        
+        # For liking the title
+        if action == "like":
+
+            # If the user has already liked the title, return error
+            if result[0][0] == 1:
+                return jsonify({"error": "Already liked"})
+            
+            # Else, add the like to the database (like)
+            else:
+                create_txt = sqlalchemy.text("""
+                    INSERT INTO likes (userId, titleId) VALUES (:userId, :titleId)
+                    """)
+                db_conn.execute(create_txt, {"userId": userId, "titleId": titleId})
+                db_conn.commit()
+
+                return jsonify({"status": "Liked"})
+        
+        # For unliking the title
+        elif action == "unlike":
+
+            # If the user hasn't liked the title, return error
+            if result[0][0] == 0:
+                return jsonify({"error": "You haven't liked this title"})
+
+            # Else, remove the like from the database (unlike)
+            else:
+                create_txt = sqlalchemy.text("""
+                    DELETE FROM likes WHERE userId = :userId AND titleId = :titleId
+                    """)
+                db_conn.execute(create_txt, {"userId": userId, "titleId": titleId})
+                db_conn.commit()
+                
+                return jsonify({"status": "Unliked"})
         else:
-            create_txt = sqlalchemy.text("""
-                INSERT INTO likes (userId, titleId) VALUES (:userId, :titleId)
-                """)
-            db_conn.execute(create_txt, {"userId": userId, "titleId": titleId})
-            db_conn.commit()
-            return jsonify({"status": "Liked"})
-    elif action == "unlike":
-        if result[0][0] == 0:
-            return jsonify({"error": "You haven't liked this title"})
-        else:
-            create_txt = sqlalchemy.text("""
-                DELETE FROM likes WHERE userId = :userId AND titleId = :titleId
-                """)
-            db_conn.execute(create_txt, {"userId": userId, "titleId": titleId})
-            db_conn.commit()
-            return jsonify({"status": "Unliked"})
-    else:
-        return jsonify({"error": "Invalid action"})
+            return jsonify({"error": "Invalid action"})

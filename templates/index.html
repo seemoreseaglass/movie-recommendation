@@ -72,12 +72,12 @@
         });
 
         // Like button
-        async function likeAction(event, titleId, action) {
+        async function likeAction(event, itemId, action) {
             event.preventDefault();
             
             // Send request
             let requestData = {
-                titleId: titleId,
+                itemId: itemId,
                 action: action
             };
 
@@ -94,10 +94,10 @@
             let result = await response.json();
             if (result.status === 'Liked') {
                 event.target.textContent = 'unlike';
-                event.target.setAttribute('onclick', `likeAction(event, '${titleId}', 'unlike')`);
+                event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'unlike')`);
             } else {
                 event.target.textContent = 'like';
-                event.target.setAttribute('onclick', `likeAction(event, '${titleId}', 'like')`);
+                event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'like')`);
             }
         }
         

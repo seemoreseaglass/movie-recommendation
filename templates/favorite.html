@@ -72,7 +72,35 @@
     </div>
 
     <script>
+        // Like button
+        async function likeAction(event, itemId, action) {
+            event.preventDefault();
+            
+            // Send request
+            let requestData = {
+                itemId: itemId,
+                action: action
+            };
 
+            // Get response
+            let response = await fetch('/like', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            // Update button
+            let result = await response.json();
+            if (result.status === 'Liked') {
+                event.target.textContent = 'unlike';
+                event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'unlike')`);
+            } else {
+                event.target.textContent = 'like';
+                event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'like')`);
+            }
+        }
     </script>
 
 {% endblock %}

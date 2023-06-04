@@ -1,4 +1,5 @@
 sqlalchemy
 flask
+flask_session
 pymysql
 cloud-sql-python-connector

@@ -34,7 +34,7 @@
                                     {{ title['primaryTitle'] }}
                                 </td>
                                 <td>
-                                    <button class="like" onclick="likeAction(event, {{ title['titleId'] }}, 'unlike')">
+                                    <button class="like" onclick="likeAction(event,'{{ title['titleId'] }}', 'unlike')">
                                         Unlike
                                     </button>
                                 </td>
@@ -58,7 +58,7 @@
                                     {{ name['primaryName'] }}
                                 </td>
                                 <td>
-                                    <button class="like" onclick="likeAction(event, {{ name['personId'] }}, 'unlike')">
+                                    <button class="like" onclick="likeAction(event, '{{ name['personId'] }}', 'unlike')">
                                         Unlike
                                     </button>
                                 </td>

@@ -298,3 +298,13 @@ def like():
         else:
             return jsonify({"error": "Invalid action"})
     """
+
+@app.route("/favorite", methods=["GET"])
+def showFav():
+    # Check if user is logged in
+    if session.get("user_id") is None:
+        return redirect("/login")
+
+    likes = {"titles":[{"titleId": 't1', "primaryTitle": 'Forrest Gump'}, {"titleId": 't2', "primaryTitle": 'American Beauty'}], "names":[{"personId": 'nm1', "primaryName": 'Brad Pitt'}, {"personId": 'nm2', "primaryName": 'Keira Knightley'}]}
+    
+    return render_template("favorite.html", likes=likes)

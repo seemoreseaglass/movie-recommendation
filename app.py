@@ -39,12 +39,10 @@ def index():
     if session.get("user_id") is None:
         return redirect("/login")
     else:
-        """
         with pool.connect() as db_conn:
             slct_user = sqlalchemy.text("SELECT username FROM users WHERE id = :id")
             username = db_conn.execute(slct_user, {"id":session["user_id"]}).fetchall()[0][0]
-        """
-        return render_template("index.html", username='test')
+        return render_template("index.html", username=username)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -65,7 +63,7 @@ def login():
 
         username = request.form.get("username")
         password = request.form.get("password")
-        """
+
         with pool.connect() as db_conn:
             
             # Query database for username
@@ -88,9 +86,6 @@ def login():
             else:
                 flash("username doesn't exist", 'error')
                 return render_template("login.html")
-        """
-        session["user_id"] = 9
-        return redirect("/")        
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -247,18 +242,14 @@ def like():
     # Check if titleId and action are provided
     if not titleId or not action:
         return jsonify({"error": "Invalid request"})
-
-    print("Successfully deleted the item!")
-    return jsonify({"status": "Unliked"})
     
-    """
     # Connect to database
     with pool.connect() as db_conn:
 
         # Check if the user already liked the title
         create_txt = sqlalchemy.text("""
-            #SELECT EXISTS (SELECT 1 FROM likes WHERE userId = :userId AND titleId = :titleId)
-    """)
+            SELECT EXISTS (SELECT 1 FROM likes WHERE userId = :userId AND titleId = :titleId)
+            """)
         
         result = db_conn.execute(create_txt, {"userId": userId, "titleId": titleId}).fetchall()
         
@@ -272,8 +263,8 @@ def like():
             # Else, add the like to the database (like)
             else:
                 create_txt = sqlalchemy.text("""
-                    #INSERT INTO likes (userId, titleId) VALUES (:userId, :titleId)
-    """)
+                    INSERT INTO likes (userId, titleId) VALUES (:userId, :titleId)
+                    """)
                 db_conn.execute(create_txt, {"userId": userId, "titleId": titleId})
                 db_conn.commit()
 
@@ -289,15 +280,15 @@ def like():
             # Else, remove the like from the database (unlike)
             else:
                 create_txt = sqlalchemy.text("""
-                    #DELETE FROM likes WHERE userId = :userId AND titleId = :titleId
-    """)
+                    DELETE FROM likes WHERE userId = :userId AND titleId = :titleId
+                    """)
                 db_conn.execute(create_txt, {"userId": userId, "titleId": titleId})
                 db_conn.commit()
-                        
+                
                 return jsonify({"status": "Unliked"})
         else:
             return jsonify({"error": "Invalid action"})
-    """
+            
 
 @app.route("/favorite", methods=["GET"])
 def showFav():

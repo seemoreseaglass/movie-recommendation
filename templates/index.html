@@ -95,9 +95,13 @@
             if (result.status === 'Liked') {
                 event.target.textContent = 'unlike';
                 event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'unlike')`);
-            } else {
+            } else if (result.status === 'Unliked') {
                 event.target.textContent = 'like';
                 event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'like')`);
+            } else if (result.status === 'error') {
+                alert(result.message);
+            } else {
+                alert('Something went wrong.');
             }
         }
         

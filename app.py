@@ -156,9 +156,11 @@ def search():
             create_txt = sqlalchemy.text("""
                 SELECT EXISTS (SELECT 1 FROM title_basics WHERE primaryTitle LIKE :primaryTitle) AS movie_exist
             """)
+            print("Checking if", q, "exists in title_basics table...")
             result = db_conn.execute(create_txt, {"primaryTitle": q}).fetchall()
 
             if result[0][0] == 1:
+                print("Found", q, "in title_basics table. Retrieving data...")
                 create_txt = sqlalchemy.text("""
                 SELECT id, primaryTitle FROM title_basics tb 
                 INNER JOIN title_rating tr ON tr.titleId = tb.id
@@ -167,11 +169,13 @@ def search():
                 """)
                 rows = db_conn.execute(create_txt, {"primaryTitle": q}).fetchall()
                 shows['titles'] = [{"titleId":row.id, "primaryTitle":row.primaryTitle} for row in rows]
+                print("Stored data in shows['titles']")
 
                 # Check if titleId and userId exists in likes table 
+                print("Checking if each titleId and userId exists in likes table...")
                 for show in shows['titles']:
                     create_txt = sqlalchemy.text("""
-                    SELECT EXISTS (SELECT 1 FROM likes WHERE titleId = :titleId AND userId = :userId) AS liked
+                    SELECT EXISTS (SELECT 1 FROM likes WHERE itemId = :titleId AND userId = :userId) AS liked
                     """)
                     result = db_conn.execute(create_txt, {"titleId": show['titleId'], "userId": session["user_id"]}).fetchall()
 
@@ -180,6 +184,7 @@ def search():
 
                     else:
                         show['liked'] = False
+                print("Stored 'liked' data in shows['titles']")
 
             else:
                 print("No movie found")
@@ -188,9 +193,11 @@ def search():
             create_txt = sqlalchemy.text("""
                 SELECT EXISTS (SELECT 1 FROM name_basics WHERE primaryName LIKE :primaryName) AS person_exist
             """)
+            print("Checking if", q, "exists in name_basics table...")
             result = db_conn.execute(create_txt, {"primaryName": q}).fetchall()
 
             if result[0][0] == 1:
+                print("Found", q, "in name_basics table. Retrieving data...")
                 create_txt = sqlalchemy.text("""
                 SELECT tb.id as titleId, tb.primaryTitle, nb.id as personId, nb.primaryName
                 FROM title_basics tb
@@ -202,12 +209,14 @@ def search():
                 """)
                 rows = db_conn.execute(create_txt, {"primaryName": q}).fetchall()
                 shows["names"] = [{"titleId":row.titleId, "primaryTitle":row.primaryTitle, "personId":row.personId, "primaryName":row.primaryName} for row in rows]
+                print("Stored data in shows['names']")
 
                 # Check if titleId and userId exists in likes table
+                print("Checking if each titleId and userId exists in likes table...")
                 for show in shows["names"]:
                     print(show)
                     create_txt = sqlalchemy.text("""
-                    SELECT EXISTS (SELECT 1 FROM likes WHERE titleId = :titleId AND userId = :userId) AS liked
+                    SELECT EXISTS (SELECT 1 FROM likes WHERE itemId = :titleId AND userId = :userId) AS liked
                     """)
                     result = db_conn.execute(create_txt, {"titleId": show["titleId"], "userId": session["user_id"]}).fetchall()
 
@@ -216,14 +225,14 @@ def search():
 
                     else:
                         show["liked"] = False
+                print("Stored 'liked' data in shows['names']")
 
             else:
                 print("No person found")
 
     else:
         shows = {}
-    print("Number of titles: ", len(shows["titles"]))
-    print("Number of names: ", len(shows["names"]))
+
     return jsonify(shows)
 
 
@@ -236,11 +245,18 @@ def like():
     # Get data from request
     data = json.loads(request.data)
     userId = session["user_id"]
-    titleId = data.get("titleId")
+    itemId = data.get("itemId")
+    if itemId[0] == "t":
+        itemType = "title"
+    elif itemId[0] == "n":
+        itemType = "name"
+    else:
+        return jsonify({"error": "Invalid request"})
+
     action = data.get("action")
     
-    # Check if titleId and action are provided
-    if not titleId or not action:
+    # Check if itemId and action are provided
+    if not itemId or not action:
         return jsonify({"error": "Invalid request"})
     
     # Connect to database
@@ -248,25 +264,27 @@ def like():
 
         # Check if the user already liked the title
         create_txt = sqlalchemy.text("""
-            SELECT EXISTS (SELECT 1 FROM likes WHERE userId = :userId AND titleId = :titleId)
+            SELECT EXISTS (SELECT 1 FROM likes WHERE userId = :userId AND itemId = :itemId)
             """)
-        
-        result = db_conn.execute(create_txt, {"userId": userId, "titleId": titleId}).fetchall()
+        print("Checking if the user already liked the title...")
+        result = db_conn.execute(create_txt, {"userId": userId, "itemId": itemId}).fetchall()
         
         # For liking the title
         if action == "like":
 
             # If the user has already liked the title, return error
             if result[0][0] == 1:
+                print("Already liked")
                 return jsonify({"error": "Already liked"})
             
             # Else, add the like to the database (like)
             else:
                 create_txt = sqlalchemy.text("""
-                    INSERT INTO likes (userId, titleId) VALUES (:userId, :titleId)
+                    INSERT INTO likes (userId, itemId, type) VALUES (:userId, :itemId, :type)
                     """)
-                db_conn.execute(create_txt, {"userId": userId, "titleId": titleId})
+                db_conn.execute(create_txt, {"userId": userId, "itemId": itemId, "type": itemType})
                 db_conn.commit()
+                print("Added the item to likes table")
 
                 return jsonify({"status": "Liked"})
         
@@ -275,20 +293,22 @@ def like():
 
             # If the user hasn't liked the title, return error
             if result[0][0] == 0:
+                print("You haven't liked this title")
                 return jsonify({"error": "You haven't liked this title"})
 
             # Else, remove the like from the database (unlike)
             else:
                 create_txt = sqlalchemy.text("""
-                    DELETE FROM likes WHERE userId = :userId AND titleId = :titleId
+                    DELETE FROM likes WHERE userId = :userId AND itemId = :itemId
                     """)
-                db_conn.execute(create_txt, {"userId": userId, "titleId": titleId})
+                db_conn.execute(create_txt, {"userId": userId, "itemId": itemId})
                 db_conn.commit()
+                print("Deleted the item from likes table")
                 
                 return jsonify({"status": "Unliked"})
         else:
             return jsonify({"error": "Invalid action"})
-            
+
 
 @app.route("/favorite", methods=["GET"])
 def showFav():
@@ -296,6 +316,34 @@ def showFav():
     if session.get("user_id") is None:
         return redirect("/login")
 
-    likes = {"titles":[{"titleId": 't1', "primaryTitle": 'Forrest Gump'}, {"titleId": 't2', "primaryTitle": 'American Beauty'}], "names":[{"personId": 'nm1', "primaryName": 'Brad Pitt'}, {"personId": 'nm2', "primaryName": 'Keira Knightley'}]}
-    
+    # Create a dictionary for storing liked titles and names
+    likes = {}
+
+    # Connect to database
+    with pool.connect() as db_conn:
+
+        # For retrieving liked titles
+        create_txt = sqlalchemy.text("""
+            SELECT l.itemId, tb.primaryTitle
+            FROM likes l
+            INNER JOIN title_basics tb ON tb.id = l.itemId
+            WHERE l.userId = :userId AND l.type = "title"
+            """)
+        print("Retrieving liked items(title)...")
+        rows = db_conn.execute(create_txt, {"userId": session["user_id"]}).fetchall()
+        likes['titles'] = [{"titleId":row.itemId, "primaryTitle":row.primaryTitle} for row in rows]
+        print(likes['titles'])
+
+        # For retrieving liked names
+        create_txt = sqlalchemy.text("""
+            SELECT l.itemId, nb.primaryName 
+            FROM likes l
+            INNER JOIN name_basics nb ON nb.id = l.itemId
+            WHERE l.userId = :userId AND l.type = "name"
+            """)
+        print("Retrieving liked items(name)...")
+        rows = db_conn.execute(create_txt, {"userId": session["user_id"]}).fetchall()
+        likes['names'] = [{"personId":row.itemId, "primaryName":row.primaryName} for row in rows]
+        print(likes['names'])
+
     return render_template("favorite.html", likes=likes)

@@ -28,12 +28,11 @@
                 <div class="collapse navbar-collapse" id="navbar">
                     {% if username %}
                         <ul class="navbar-nav me-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/favorite">Fovorite</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/b">B</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/c">C</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/favorite">Favorite</a></li>
+   
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
+                            <li class="nav-item"><a class="nav-link" href="/profile">{{ username }}</a></li>
                             <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
                         </ul>
                     {% else %}

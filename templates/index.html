@@ -46,7 +46,7 @@
                         let personId = names[i].personId;
                         let primaryName = names[i].primaryName.replace('<', '&lt;').replace('&', '&amp;');
                         let action = names[i].liked ? 'unlike' : 'like';
-                        html_names += '<tr><td>' + title + '<p>' + personId + ':' + primaryName + '</p></td><td><button class="like" onclick="likeAction(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
+                        html_names += '<tr><td>' + title + '</td><td><button class="like" onclick="likeAction(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr><tr><td>' + primaryName + '</td><td><button class="like" onclick="likeAction(event, \'' + personId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
                     }
                 }
             } else {

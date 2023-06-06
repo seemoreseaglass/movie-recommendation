@@ -20,10 +20,8 @@
 
     <script>
 
-        let input = document.querySelector('.input_query');
-        input.addEventListener('input', async function() {
-            let response = await fetch('/search?q=' + input.value);
-            let shows = await response.json();
+        // Display results
+        function displayResults(shows) {
             let html_titles = '';
             let html_names = '';
             if (Object.keys(shows).length != 0) {
@@ -61,6 +59,38 @@
             document.querySelector('.q-result-names').innerHTML = html_names;
             document.querySelectorAll('.q-input')[0].innerHTML = input.value;
             document.querySelectorAll('.q-input')[1].innerHTML = input.value;
+        }
+
+        // Search
+        let input = document.querySelector('.input_query');
+        let activeRequest = null;
+
+        input.addEventListener('input', async function() {
+            // Check if there's an active request, and if so, abort it
+            if (activeRequest) {
+                activeRequest.abort();
+            }
+
+            // Create a new request and store it as the active request
+            let request = new Request('/search?q=' + input.value);
+            activeRequest = request;
+
+            try {
+                let response = await fetch(request);
+                let shows = await response.json();
+
+                // Check if the current request is still the active request
+                if (request === activeRequest) {
+                    displayResults(shows);
+                    activeRequest = null;
+                }
+            } catch (error) {
+                // Handle any errors
+                console.error(error);
+
+                // Reset the active request to null
+                activeRequest = null;
+            }
         });
 
         // Like button

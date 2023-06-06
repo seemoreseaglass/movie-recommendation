@@ -120,12 +120,50 @@
             } else if (result.status === 'Unliked') {
                 event.target.textContent = 'like';
                 event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'like')`);
-            } else if (result.status === 'error') {
-                alert(result.message);
+            } else if (typeof result.error !== 'undefined') {
+                let alertDiv = document.querySelector('.alert-div');
+                
+                // Create the alert element
+                let alertElement = document.createElement('div');
+                alertElement.className = 'alert alert-warning mb-0 text-center';
+                alertElement.textContent = result.error;
+                
+                // Append the alert element to the alert-div
+                alertDiv.appendChild(alertElement);
+                
+                // Fade out after 2 seconds
+                setTimeout(function() {
+                    alertElement.classList.add('fade');
+                    alertElement.style.transition = 'opacity 0.5s';
+                    alertElement.style.opacity = 0;
+                    
+                    setTimeout(function() {
+                        alertDiv.removeChild(alertElement);
+                    }, 500); // Remove the alert element from the DOM after fade out
+                }, 2000); // Fade out after 2 seconds
             } else {
-                alert('Something went wrong.');
+                let alertDiv = document.querySelector('.alert-div');
+                
+                // Create the alert element
+                let alertElement = document.createElement('div');
+                alertElement.className = 'alert alert-warning mb-0 text-center';
+                alertElement.textContent = "Something went wrong. Please try again later.";
+
+                // Append the alert element to the alert-div
+                alertDiv.appendChild(alertElement);
+                
+                // Fade out after 2 seconds
+                setTimeout(function() {
+                    alertElement.classList.add('fade');
+                    alertElement.style.transition = 'opacity 0.5s';
+                    alertElement.style.opacity = 0;
+                    
+                    setTimeout(function() {
+                        alertDiv.removeChild(alertElement);
+                    }, 500); // Remove the alert element from the DOM after fade out
+                }, 2000); // Fade out after 2 seconds
             }
-        }
+        };
         
     </script>
 

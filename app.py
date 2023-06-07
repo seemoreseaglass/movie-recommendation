@@ -39,13 +39,6 @@ def index():
     if session.get("user_id") is None:
         return redirect("/login")
     else:
-        """
-        Delete this later
-        """
-        return render_template("index.html", username='test')
-        """
-        Delete this later
-        """
         with pool.connect() as db_conn:
             slct_user = sqlalchemy.text("SELECT username FROM users WHERE id = :id")
             username = db_conn.execute(slct_user, {"id":session["user_id"]}).fetchall()[0][0]
@@ -56,14 +49,7 @@ def index():
 def login():
     # Forget any user_id
     session.clear()
-    """
-    Delete this later
-    """
-    session["user_id"] = 9
-    return redirect("/")
-    """
-    Delete this later
-    """
+
     if request.method == "POST":
         # Ensure username was submitted
         if not request.form.get("username"):

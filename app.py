@@ -39,10 +39,7 @@ def index():
     if session.get("user_id") is None:
         return redirect("/login")
     else:
-        with pool.connect() as db_conn:
-            slct_user = sqlalchemy.text("SELECT username FROM users WHERE id = :id")
-            username = db_conn.execute(slct_user, {"id":session["user_id"]}).fetchall()[0][0]
-        return render_template("index.html", username=username)
+        return render_template("index.html", username=session["user_name"])
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -75,6 +72,7 @@ def login():
                     # Password correct
                     user_id = rows[0][0]
                     session["user_id"] = user_id
+                    session["user_name"] = username
                     return redirect("/")
 
                 else:

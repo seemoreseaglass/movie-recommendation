@@ -5,6 +5,9 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from flask import Flask, redirect, render_template, request, session, flash, jsonify
 from flask_session import Session
 import json
+import pandas as pd
+import numpy as np
+from sklearn.metrics import jaccard_score
 
 # Configure app
 app = Flask(__name__)
@@ -347,3 +350,136 @@ def showFav():
         print(likes['names'])
 
     return render_template("favorite.html", likes=likes)
+
+
+@app.route("/recommend_collab", methods=["GET"])
+def recommend_collab():
+    # Check if user is logged in
+    if session["user_id"] == None:
+        return redirect("/login")
+
+    target = session["user_id"]
+
+    # Connect to database
+    with pool.connect() as db_conn:
+
+        # Get liking data from database
+        create_txt = sqlalchemy.text("""
+            SELECT userId, itemId
+            FROM likes
+            """)
+        print("Retrieving liking data...")
+        rows = db_conn.execute(create_txt).fetchall()
+        print("rows: ", rows)
+        
+        itemIds = np.empty(0)
+        userIds = np.empty(0)
+
+        for row in rows:
+            itemIds = np.append(itemIds, row.itemId)
+            userIds = np.append(userIds, row.userId)
+        print("itemIds: ", itemIds)
+        print("userIds: ", userIds)
+
+        df = pd.DataFrame({"userId": userIds, "itemId": itemIds})
+        print("df: ", df)
+
+        # Get unique userIds and itemIds
+        unique_itemIds = np.unique(itemIds)
+        print("unique_itemIds: ", unique_itemIds)
+        unique_userIds = np.unique(userIds)
+        print("unique_itemIds: ", unique_itemIds)
+
+        # Get unique itemIds liked by target user
+        unique_itemIds_target = df.loc[df.userId == target]
+        print("unique_itemIds_target: ", unique_itemIds_target)
+        unique_itemIds_target = sorted(set(unique_itemIds_target.itemId))
+        print("unique_itemIds_target: ", unique_itemIds_target)
+
+        # Get unique userIds who liked the same items as target user
+        unique_userIds_except_target = unique_userIds
+        print("unique_userIds_except_target: ", unique_userIds_except_target)
+        
+        # Delete target user from the list
+        for i in range(len(unique_userIds_except_target)):
+            if unique_userIds_except_target[i] == target:
+                unique_userIds_except_target = np.delete(unique_userIds_except_target, i)
+                break
+        print("Deleted target user from the list")
+                
+        #unique_userIds_except_target.remove(target)
+        print("unique_userIds_except_target: ", unique_userIds_except_target)
+
+        jaccard_score_list = {'userId': [], 'jaccard_score': []}
+        for user in unique_userIds_except_target:
+            other_user_liking = np.empty(len(unique_itemIds_target))
+            target_user_liking = np.full(len(unique_itemIds_target), 1)
+            for i, item in enumerate(unique_itemIds_target):
+
+                # Populate binary liking values for the collaborator
+                print("Populating binary liking values for the collaborator")
+                if df.loc[(df.userId == user) & (df.itemId == item)].empty:
+                    other_user_liking[i] = 0
+                else:
+                    other_user_liking[i] = 1
+
+            # Calculate Jaccard score
+            print("Calculating Jaccard score")
+            jaccard_score_list['userId'].append(user)
+            jaccard_score_list['jaccard_score'].append(jaccard_score(target_user_liking, other_user_liking))
+
+        # Sort the list by Jaccard score
+        print("Sorting the list by Jaccard score")
+        df_jaccard_score = pd.DataFrame(jaccard_score_list)
+        df_jaccard_score = df_jaccard_score.sort_values(by=['jaccard_score'], ascending=False)
+        print("df_jaccard_score: ", df_jaccard_score)
+
+        collab = df_jaccard_score.loc[df_jaccard_score.jaccard_score == df_jaccard_score.jaccard_score.max()].userId.values[0]
+        print("collab: ", collab)
+
+        print("df: ", df)
+        collab_likes = df.loc[df.userId == collab].itemId
+        print("collab_likes: ", collab_likes)
+
+        # Remove items already liked by target user
+        print("Removing items already liked by target user")
+        recommendation = collab_likes[~collab_likes.isin(unique_itemIds_target)]
+        print("recommendation: ", recommendation)
+
+        # Get the top 10 items(if available)
+        print("Getting the top 10 items(if available)")
+        if len(recommendation) > 10:
+            recommendation = recommendation[:10]
+        else:
+            recommendation = recommendation[:len(recommendation)]
+
+        # Get the title of the items
+        reco_collab = {"titles":[], "persons":[]}
+        print("Getting items")
+        for item in recommendation:
+            print("item: ", item)
+            if item[0] == "t":
+                create_txt = sqlalchemy.text("""
+                    SELECT primaryTitle, id
+                    FROM title_basics
+                    WHERE id = :item
+                    """)
+                print("Retrieving recommended items...")
+                result = db_conn.execute(create_txt, {"item": item}).fetchone()
+                print("result: ", result)
+                reco_collab['titles'].append(dict({"itemId":result.id, "primaryTitle":result.primaryTitle}))
+            elif item[0] == "n":
+                create_txt = sqlalchemy.text("""
+                    SELECT primaryName, id
+                    FROM name_basics
+                    WHERE id = :item
+                    """)
+                print("Retrieving recommended items...")
+                result = db_conn.execute(create_txt, {"item": item}).fetchone()
+                print("result: ", result)
+                reco_collab['persons'].append(dict({"itemId":result.id, "primaryName":result.primaryName}))
+
+            else:
+                print("Error: item is neither title nor person")
+
+        return render_template("recommend_collab.html", reco_collab=reco_collab)

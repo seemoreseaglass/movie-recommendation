@@ -21,7 +21,7 @@ function createTableContents(data, input) {
                 let personId = names[i].personId;
                 let primaryName = names[i].primaryName.replace('<', '&lt;').replace('&', '&amp;');
                 let action = names[i].liked ? 'unlike' : 'like';
-                html_names += '<tr><td>' + primaryName + '</td><td><button class="like" onclick="likeUnlike(event, \'' + personId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
+                html_names += '<tr><td class="result-item">' + primaryName + '</td><td><button class="like" onclick="likeUnlike(event, \'' + personId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
             }
         }
     } else {

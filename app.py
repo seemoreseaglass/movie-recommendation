@@ -157,7 +157,7 @@ def search():
         if q:
             with pool.connect() as db_conn:
 
-                shows = {'titles': [], 'names': []}
+                data = {'titles': [], 'names': []}
                 
                 q = '%' + q + '%'
 
@@ -183,14 +183,14 @@ def search():
                         if cancel_flag:
                             return jsonify({'message': 'Query canceled'})
                         
-                        shows['titles'].append({"titleId":row.id, "primaryTitle":row.primaryTitle})
+                        data['titles'].append({"titleId":row.id, "primaryTitle":row.primaryTitle})
                     
-                    print("Stored data in shows['titles']")
+                    print("Stored data in data['titles']")
 
                     # Check if titleId and userId exists in likes table 
                     print("Checking if each titleId and userId exists in likes table...")
                     
-                    for show in shows['titles']:
+                    for show in data['titles']:
                         if cancel_flag:
                             return jsonify({'message': 'Query canceled'})
                         
@@ -205,7 +205,7 @@ def search():
                         else:
                             show['liked'] = False
                     
-                    print("Stored 'liked' data in shows['titles']")
+                    print("Stored 'liked' data in data['titles']")
 
                 else:
                     print("No movie found")
@@ -237,14 +237,14 @@ def search():
                         if cancel_flag:
                             return jsonify({'message': 'Query canceled'})   
                     
-                        shows["names"].append({"titleId":row.titleId, "primaryTitle":row.primaryTitle, "personId":row.personId, "primaryName":row.primaryName})
+                        data["names"].append({"titleId":row.titleId, "primaryTitle":row.primaryTitle, "personId":row.personId, "primaryName":row.primaryName})
                     
-                    print("Stored data in shows['names']")
+                    print("Stored data in data['names']")
 
                     # Check if titleId and userId exists in likes table
                     print("Checking if each titleId and userId exists in likes table...")
                     
-                    for show in shows["names"]:
+                    for show in data["names"]:
                         if cancel_flag:
                             return jsonify({'message': 'Query canceled'})
                     
@@ -259,13 +259,13 @@ def search():
                         else:
                             show["liked"] = False
                     
-                    print("Stored 'liked' data in shows['names']")
+                    print("Stored 'liked' data in data['names']")
 
                 else:
                     print("No person found")
 
         else:
-            shows = {}
+            data = {}
     
     finally:
         # Release the lock

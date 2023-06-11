@@ -3,4 +3,8 @@ import { helpers } from './module.mjs';
 // Search
 let input = document.querySelector('.input_query');
 let activeRequest = null;
-input.addEventListener('input', helpers.search(input, activeRequest));
+let data = input.addEventListener('input', helpers.search(input, activeRequest));
+
+// Show detail information of item
+let item = document.querySelector(".result-item")
+item.addEventListener('click', helpers.triggerModal(event, data));

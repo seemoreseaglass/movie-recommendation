@@ -18,24 +18,20 @@ function createTableContents(data, input) {
         if (data.names.length != 0) {
             let names = data.names;
             for (let i in names) {
-                let titleId = names[i].titleId;
-                let title = names[i].primaryTitle.replace('<', '&lt;').replace('&', '&amp;');
                 let personId = names[i].personId;
                 let primaryName = names[i].primaryName.replace('<', '&lt;').replace('&', '&amp;');
                 let action = names[i].liked ? 'unlike' : 'like';
-                html_names += '<tr><td>' + title + '</td><td><button class="like" onclick="likeUnlike(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr><tr><td>' + primaryName + '</td><td><button class="like" onclick="likeUnlike(event, \'' + personId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
+                html_names += '<tr><td>' + primaryName + '</td><td><button class="like" onclick="likeUnlike(event, \'' + personId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
             }
         }
     } else {
-        html_titles = 'titles including"' + input.value + '" is not found';
-        html_names = 'titles with principals named"' + input.value + '" is not found';
+        html_titles = 'Not Found';
+        html_names = 'Not Found';
     }
 
             // Update page
             document.querySelector('.q-result-titles').innerHTML = html_titles;
             document.querySelector('.q-result-names').innerHTML = html_names;
-            document.querySelectorAll('.q-input')[0].innerHTML = input.value;
-            document.querySelectorAll('.q-input')[1].innerHTML = input.value;
         }
 
 async function search(input, activeRequest) {

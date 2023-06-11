@@ -10,7 +10,7 @@ function createTableContents(data, input) {
                 let titleId = titles[i].titleId;
                 let title = titles[i].primaryTitle.replace('<', '&lt;').replace('&', '&amp;');
                 let action = titles[i].liked ? 'unlike' : 'like';
-                html_titles += '<tr><td>' + title + '</td><td><button class="like" onclick="likeUnlike(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
+                html_titles += '<tr><td class="result-item">' + title + '</td><td><button class="like" onclick="likeUnlike(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
             }
 
         }

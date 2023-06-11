@@ -60,6 +60,8 @@ async function search(input, activeRequest) {
         // Reset the active request to null
         activeRequest = null;
     }
+
+    return data
 }
 
 

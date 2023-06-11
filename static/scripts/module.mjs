@@ -136,9 +136,51 @@ async function likeUnlike(event, itemId, action) {
     }
 }
 
+
+function triggerModal(event, data) {
+    event.preventDefault();
+    let itemId = event.target.id;
+    let modal = document.getElementById("exampleModal");
+    let titleContent = document.querySelector(".modal-title");
+    let bodyContent = document.createElement(ul);
+    if (itemId[0] === 't') {
+        // If item is title
+        // Set variables
+        data = data['titles'][itemId];
+        for (const [key, value] of Object.entries(data)) {
+            if (key === 'primaryTitle') {
+                titleContent.innerHTML = value;
+            } else {
+                let list = document.createElement(li);
+                list.innerHTML = value;
+                bodycontent.appendChild(list);
+            }
+        }
+    } else {
+        // If item is person
+        // Set variables
+        data = data['names'][itemId];
+        for (const [key, value] of Object.entries(data)) {
+            if (key === 'primaryName') {
+                titleContent.innerHTML = value;
+            } else {
+                let list = document.createElement(li);
+                list.innerHTML = value;
+                bodycontent.appendChild(list);
+            }
+        
+    }
+    modalTitle.innerHTML = titleContent;
+    modalBody,innerHTML = bodyContent;
+    
+    // Make modal appear
+    modal.show;
+}
+
 // Export functions as 
 
 export const helpers = {
     search: search,
-    likeUnlike: likeUnlike
+    likeUnlike: likeUnlike,
+    triggerModal: triggerModal,
 };

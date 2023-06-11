@@ -1,4 +1,4 @@
-import helpers from './module.mjs';
+import { helpers } from './module.mjs';
 
 // Search
 let input = document.querySelector('.input_query');

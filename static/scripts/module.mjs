@@ -140,10 +140,7 @@ async function likeUnlike(event, itemId, action) {
 
 // Export functions as 
 
-const helpers = {
+export const helpers = {
     search: search,
     likeUnlike: likeUnlike
 };
-
-// Export functions for ESM
-export default helpers;

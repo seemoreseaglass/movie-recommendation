@@ -7,4 +7,6 @@ let data = input.addEventListener('input', helpers.search(input, activeRequest))
 
 // Show detail information of item
 let item = document.querySelector(".result-item")
-item.addEventListener('click', () => helpers.triggerModal(data));
+if (item) {
+    item.addEventListener('click', () => helpers.triggerModal(data));
+}

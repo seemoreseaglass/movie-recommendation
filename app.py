@@ -157,7 +157,7 @@ def search():
         if q:
             with pool.connect() as db_conn:
 
-                data = {'titles': [], 'names': []}
+                data = {'titles': {}, 'names': {}}
                 
                 q = '%' + q + '%'
 
@@ -172,40 +172,24 @@ def search():
                     print("Found", q, "in title_basics table. Retrieving data...")
                     
                     create_txt = sqlalchemy.text("""
-                    SELECT id, primaryTitle FROM title_basics tb 
+                    SELECT id, primaryTitle, titleType, averageRating, startYear, genres, l.userId IS NOT NULL AS liked
+                    FROM title_basics tb 
                     INNER JOIN title_rating tr ON tr.titleId = tb.id
+                    INNER JOIN title_principals tp ON tp.titleId = tb.id
+                    LEFT JOIN likes l ON tb.id = l.itemId
+                    AND l.userId = :userId
                     WHERE primaryTitle LIKE :primaryTitle
-                    ORDER BY tr.averageRating DESC LIMIT 5
+                    ORDER BY tr.averageRating DESC LIMIT 10
                     """)
                     
-                    rows = db_conn.execute(create_txt, {"primaryTitle": q}).fetchall()
+                    rows = db_conn.execute(create_txt, {"primaryTitle": q, "userId": session['user_id']}).fetchall()
                     for row in rows:
                         if cancel_flag:
                             return jsonify({'message': 'Query canceled'})
                         
-                        data['titles'].append({"titleId":row.id, "primaryTitle":row.primaryTitle})
+                        data['titles'][row.id] = dict({"primaryTitle":row.primaryTitle, "titleType":row.titleType, "averageRating":row.averageRating, "startYear":row.startYear, "genres":row.genres, "liked":row.liked})
                     
                     print("Stored data in data['titles']")
-
-                    # Check if titleId and userId exists in likes table 
-                    print("Checking if each titleId and userId exists in likes table...")
-                    
-                    for item in data['titles']:
-                        if cancel_flag:
-                            return jsonify({'message': 'Query canceled'})
-                        
-                        create_txt = sqlalchemy.text("""
-                        SELECT EXISTS (SELECT 1 FROM likes WHERE itemId = :titleId AND userId = :userId) AS liked
-                        """)
-                        result = db_conn.execute(create_txt, {"titleId": item['titleId'], "userId": session["user_id"]}).fetchall()
-
-                        if result[0][0] == 1:
-                            item['liked'] = True
-
-                        else:
-                            item['liked'] = False
-                    
-                    print("Stored 'liked' data in data['titles']")
 
                 else:
                     print("No movie found")
@@ -223,23 +207,16 @@ def search():
                     print("Found", q, "in name_basics table. Retrieving data...")
                 
                     create_txt = sqlalchemy.text("""
-                    SELECT nb.id as personId, nb.primaryName, birthYear, deathYear, primaryProfession, knownForTitles
+                    SELECT nb.id as personId, nb.primaryName, birthYear, deathYear, primaryProfession, knownForTitles, l.userId IS NOT NULL AS liked
                     FROM name_basics nb
-                    LEFT JOIN likes l
-                    ON nb.id = l.itemId
+                    LEFT JOIN likes l ON nb.id = l.itemId
                     AND l.userId = :userId
                     WHERE LIKE :primaryName 
                     """)
                     
                     rows = db_conn.execute(create_txt, {"userId": session["user_id"], "primaryName": q}).fetchall()
-                    for row in rows:
-                        if cancel_flag:
-                            return jsonify({'message': 'Query canceled'})   
+                    data["names"][row.personId] = dict({"primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownForTitles": row.knownForTitles, "liked":row.liked})
 
-                        if row.userId is None:
-                            data["names"].append({"personId":row.personId, "primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownForTitles": row.knownForTitles, "liked":False})
-                        else:
-                            data["names"].append({"personId":row.personId, "primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownForTitles": row.knownForTitles, "liked":True})
                     print("Stored data in data['names']")
 
                 else:

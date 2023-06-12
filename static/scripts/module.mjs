@@ -44,9 +44,12 @@ async function search(input, activeRequest) {
     let request = new Request('/search?q=' + input.value);
     activeRequest = request;
 
+    // Define return variable
+    let data = null;
+
     try {
         let response = await fetch(request);
-        let data = await response.json();
+        data = await response.json();
 
         // Check if the current request is still the active request
         if (request === activeRequest) {

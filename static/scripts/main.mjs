@@ -6,7 +6,9 @@ let activeRequest = null;
 let data = input.addEventListener('input', () => helpers.search(input, activeRequest));
 
 // Show detail information of item
-let item = document.querySelector(".result-item")
+let item = document.querySelector(".result-item span");
+console.log(item);
+console.log(data);
 if (item != null && data != null) {
-    item.addEventListener('click', () => helpers.triggerModal(data));
+    item.addEventListener('click', (event) => helpers.triggerModal(data));
 }

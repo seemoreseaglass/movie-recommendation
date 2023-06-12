@@ -10,7 +10,7 @@ function createTableContents(data) {
                 let titleId = key;
                 let title = value['primaryTitle'].replace('<', '&lt;').replace('&', '&amp;');
                 let action = value['liked'] ? 'unlike' : 'like';
-                html_titles += '<tr><td class="result-item">' + title + '</td><td><button class="like" data-id="' + titleId + '">' + action + '</button></td></tr>';
+                html_titles += '<tr><td class="result-item" id="\'' + titleId + '\'"><span>' + title + '</span></td><td><button class="like" data-id="' + titleId + '">' + action + '</button></td></tr>';
             }
 
         }
@@ -21,7 +21,7 @@ function createTableContents(data) {
                 let personId = key;
                 let primaryName = value['primaryName'].replace('<', '&lt;').replace('&', '&amp;');
                 let action = value['liked'] ? 'unlike' : 'like';
-                html_names += '<tr><td class="result-item">' + primaryName + '</td><td><button class="like" data-id="' + personId + '">' + action + '</button></td></tr>';
+                html_names += '<tr><td class="result-item" id="\'' + personId + '\'"><span>' + primaryName + '</span></td><td><button class="like" data-id="' + personId + '">' + action + '</button></td></tr>';
             }
         }
     } else {
@@ -78,7 +78,12 @@ async function search(input, activeRequest) {
         // Reset the active request to null
         activeRequest = null;
     }
-
+    let item = document.querySelector(".result-item")
+    console.log("item: " + item);
+    console.log("data: " + data);
+    if (item != null && data != null) {
+        item.addEventListener('click', () => triggerModal(data));
+    }
     return data
 }
 
@@ -159,14 +164,20 @@ async function likeUnlike(event, itemId, action) {
 
 
 function triggerModal(event, data) {
+    if (event === undefined) {
+        console.log("event is undefined");
+    }
+    console.log("target is: " + event.target);
     event.preventDefault();
+    console.log("I'm gonna print the event")
+    console.log("event: " + event);
     let itemId = event.target.id;
     let modal = document.getElementById("exampleModal");
     let modalTitle = document.querySelector(".modal-title");
     let modalBody = document.querySelector(".modal-body");
     let titleContent = '';
     let bodyContent = document.createElement('ul');
-    if (itemId[0] === 't') {
+    if (itemId && itemId[0] === 't') {
         // If item is title
         // Set variables
         data = data['titles'][itemId];
@@ -175,11 +186,11 @@ function triggerModal(event, data) {
                 titleContent.innerHTML = value;
             } else {
                 let list = document.createElement('li');
-                list.innerHTML = value;
+                list.textContent = value;
                 bodyContent.appendChild(list);
             }
         }
-    } else {
+    } else if (itemId) {
         // If item is person
         // Set variables
         data = data['names'][itemId];
@@ -188,16 +199,20 @@ function triggerModal(event, data) {
                 titleContent.innerHTML = value;
             } else {
                 let list = document.createElement('li');
-                list.innerHTML = value;
+                list.textContent = value;
                 bodyContent.appendChild(list);
             }
         }
     }
+
     modalTitle.innerHTML = titleContent;
+    modalBody.innerHTML = '';
     modalBody.innerHTML = bodyContent;
     
     // Make modal appear
-    modal.show();
+    if (modal) {
+        modal.classList.add('show');
+    }
 }
 
 

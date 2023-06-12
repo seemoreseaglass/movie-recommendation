@@ -237,9 +237,9 @@ def search():
                             return jsonify({'message': 'Query canceled'})   
 
                         if row.userId is None:
-                            data["names"].append({"personId":row.personId, "primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownForTitles": row.knownForTitles, "liked" = False})
+                            data["names"].append({"personId":row.personId, "primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownForTitles": row.knownForTitles, "liked":False})
                         else:
-                            data["names"].append({"personId":row.personId, "primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownForTitles": row.knownForTitles, "liked" = True})
+                            data["names"].append({"personId":row.personId, "primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownForTitles": row.knownForTitles, "liked":True})
                     print("Stored data in data['names']")
 
                 else:

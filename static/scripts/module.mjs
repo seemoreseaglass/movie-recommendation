@@ -155,7 +155,7 @@ function triggerModal(event, data) {
             } else {
                 let list = document.createElement('li');
                 list.innerHTML = value;
-                bodycontent.appendChild(list);
+                bodyContent.appendChild(list);
             }
         }
     } else {
@@ -168,7 +168,7 @@ function triggerModal(event, data) {
             } else {
                 let list = document.createElement(li);
                 list.innerHTML = value;
-                bodycontent.appendChild(list);
+                bodyContent.appendChild(list);
             }
         }
     }

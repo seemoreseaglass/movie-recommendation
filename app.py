@@ -172,7 +172,7 @@ def search():
                     print("Found", q, "in title_basics table. Retrieving data...")
                     
                     create_txt = sqlalchemy.text("""
-                    SELECT id, primaryTitle, titleType, averageRating, startYear, genres, l.userId IS NOT NULL AS liked
+                    SELECT tb.id as titleId, tb.primaryTitle, tb.titleType, averageRating, startYear, genres, l.userId IS NOT NULL AS liked
                     FROM title_basics tb 
                     INNER JOIN title_rating tr ON tr.titleId = tb.id
                     INNER JOIN title_principals tp ON tp.titleId = tb.id
@@ -187,7 +187,7 @@ def search():
                         if cancel_flag:
                             return jsonify({'message': 'Query canceled'})
                         
-                        data['titles'][row.id] = dict({"primaryTitle":row.primaryTitle, "titleType":row.titleType, "averageRating":row.averageRating, "startYear":row.startYear, "genres":row.genres, "liked":row.liked})
+                        data['titles'][row.titleId] = dict({"primaryTitle":row.primaryTitle, "titleType":row.titleType, "averageRating":row.averageRating, "startYear":row.startYear, "genres":row.genres, "liked":row.liked})
                     
                     print("Stored data in data['titles']")
 

@@ -1,4 +1,4 @@
-function createTableContents(data, input) {
+function createTableContents(data) {
     let html_titles = '';
     let html_names = '';
     if (Object.keys(data).length != 0) {
@@ -6,22 +6,22 @@ function createTableContents(data, input) {
         // Generate html for titles query
         if (data.titles.length != 0) {
             let titles = data.titles;
-            for (let i in titles) {
-                let titleId = titles[i].titleId;
-                let title = titles[i].primaryTitle.replace('<', '&lt;').replace('&', '&amp;');
-                let action = titles[i].liked ? 'unlike' : 'like';
-                html_titles += '<tr><td class="result-item">' + title + '</td><td><button class="like" onclick="likeUnlike(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
+            for (const [key, value] of Object.entries(titles)) {
+                let titleId = key;
+                let title = value['primaryTitle'].replace('<', '&lt;').replace('&', '&amp;');
+                let action = value['liked'] ? 'unlike' : 'like';
+                html_titles += '<tr><td class="result-item">' + title + '</td><td><button class="like" onclick="helpers.likeUnlike(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
             }
 
         }
         // Generate html for principals query
         if (data.names.length != 0) {
             let names = data.names;
-            for (let i in names) {
-                let personId = names[i].personId;
-                let primaryName = names[i].primaryName.replace('<', '&lt;').replace('&', '&amp;');
-                let action = names[i].liked ? 'unlike' : 'like';
-                html_names += '<tr><td class="result-item">' + primaryName + '</td><td><button class="like" onclick="likeUnlike(event, \'' + personId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
+            for (const [key, value] of Object.entries(names)) {
+                let personId = key;
+                let primaryName = value['primaryName'].replace('<', '&lt;').replace('&', '&amp;');
+                let action = value['liked'] ? 'unlike' : 'like';
+                html_names += '<tr><td class="result-item">' + primaryName + '</td><td><button class="like" onclick="helpers.likeUnlike(event, \'' + personId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
             }
         }
     } else {
@@ -35,9 +35,14 @@ function createTableContents(data, input) {
         }
 
 async function search(input, activeRequest) {
+    console.log("search function")
+    console.log("input: ", input);
+    console.log("activeRequest: ", activeRequest);
     // Check if there's an active request, and if so, abort it
     if (activeRequest) {
         activeRequest.abort();
+    } else {
+        console.log("no active request");
     }
 
     // Create a new request and store it as the active request
@@ -50,9 +55,11 @@ async function search(input, activeRequest) {
     try {
         let response = await fetch(request);
         data = await response.json();
+        console.log("data: ", data);
 
         // Check if the current request is still the active request
         if (request === activeRequest) {
+            console.log("call createTableContents")
             createTableContents(data, input);
             activeRequest = null;
         }
@@ -181,6 +188,8 @@ function triggerModal(event, data) {
     // Make modal appear
     modal.show();
 }
+
+
 
 // Export functions as 
 

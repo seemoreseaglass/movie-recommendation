@@ -252,7 +252,7 @@ def search():
         # Release the lock
         current_query_lock.release()
 
-    return jsonify(shows)
+    return jsonify(data)
 
 
 @app.route("/like", methods=["POST"])

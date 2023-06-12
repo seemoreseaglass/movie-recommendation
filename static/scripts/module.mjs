@@ -168,7 +168,7 @@ function triggerModal(event, data) {
                 list.innerHTML = value;
                 bodycontent.appendChild(list);
             }
-        
+        }
     }
     modalTitle.innerHTML = titleContent;
     modalBody,innerHTML = bodyContent;

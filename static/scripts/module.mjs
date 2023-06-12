@@ -10,7 +10,7 @@ function createTableContents(data) {
                 let titleId = key;
                 let title = value['primaryTitle'].replace('<', '&lt;').replace('&', '&amp;');
                 let action = value['liked'] ? 'unlike' : 'like';
-                html_titles += '<tr><td class="result-item">' + title + '</td><td><button class="like" onclick="helpers.likeUnlike(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
+                html_titles += '<tr><td class="result-item">' + title + '</td><td><button class="like" data-id="' + titleId + '">' + action + '</button></td></tr>';
             }
 
         }
@@ -21,7 +21,7 @@ function createTableContents(data) {
                 let personId = key;
                 let primaryName = value['primaryName'].replace('<', '&lt;').replace('&', '&amp;');
                 let action = value['liked'] ? 'unlike' : 'like';
-                html_names += '<tr><td class="result-item">' + primaryName + '</td><td><button class="like" onclick="helpers.likeUnlike(event, \'' + personId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
+                html_names += '<tr><td class="result-item">' + primaryName + '</td><td><button class="like" data-id="' + personId + '">' + action + '</button></td></tr>';
             }
         }
     } else {
@@ -29,15 +29,25 @@ function createTableContents(data) {
         html_names = 'Not Found';
     }
 
-            // Update page
-            document.querySelector('.q-result-titles').innerHTML = html_titles;
-            document.querySelector('.q-result-names').innerHTML = html_names;
+    // Update page
+    document.querySelector('.q-result-titles').innerHTML = html_titles;
+    document.querySelector('.q-result-names').innerHTML = html_names;
+
+
+    // Bind the event listener to the parent element using event delegation
+    let table = document.querySelector('.q-result-titles');
+    table.addEventListener('click', (event) => {
+        if (event.target.classList.contains('like')) {
+            let itemId = event.target.dataset.id;
+            helpers.likeUnlike(event, itemId, 'like');
+        } else if (event.target.classList.contains('unlike')) {
+            let itemId = event.target.dataset.id;
+            helpers.likeUnlike(event, itemId, 'unlike');
+        }
+    });
         }
 
 async function search(input, activeRequest) {
-    console.log("search function")
-    console.log("input: ", input);
-    console.log("activeRequest: ", activeRequest);
     // Check if there's an active request, and if so, abort it
     if (activeRequest) {
         activeRequest.abort();
@@ -55,11 +65,9 @@ async function search(input, activeRequest) {
     try {
         let response = await fetch(request);
         data = await response.json();
-        console.log("data: ", data);
 
         // Check if the current request is still the active request
         if (request === activeRequest) {
-            console.log("call createTableContents")
             createTableContents(data, input);
             activeRequest = null;
         }
@@ -77,7 +85,7 @@ async function search(input, activeRequest) {
 
 async function likeUnlike(event, itemId, action) {
     event.preventDefault();
-    
+
     // Send request
     let requestData = {
         itemId: itemId,
@@ -97,10 +105,13 @@ async function likeUnlike(event, itemId, action) {
     let result = await response.json();
     if (result.status === 'Liked') {
         event.target.textContent = 'unlike';
-        event.target.setAttribute('onclick', `likeUnlike(event, '${itemId}', 'unlike')`);
+        event.target.classList.remove('like');
+        event.target.classList.add('unlike');
+
     } else if (result.status === 'Unliked') {
         event.target.textContent = 'like';
-        event.target.setAttribute('onclick', `likeUnlike(event, '${itemId}', 'like')`);
+        event.target.classList.remove('unlike');
+        event.target.classList.add('like');
     } else if (typeof result.error !== 'undefined') {
         let alertDiv = document.querySelector('.alert-div');
         

@@ -176,7 +176,7 @@ function triggerModal(event, data) {
         }
     }
     modalTitle.innerHTML = titleContent;
-    modalBody,innerHTML = bodyContent;
+    modalBody.innerHTML = bodyContent;
     
     // Make modal appear
     modal.show;

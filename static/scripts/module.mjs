@@ -141,8 +141,10 @@ function triggerModal(event, data) {
     event.preventDefault();
     let itemId = event.target.id;
     let modal = document.getElementById("exampleModal");
-    let titleContent = document.querySelector(".modal-title");
-    let bodyContent = document.createElement(ul);
+    let modalTitle = document.querySelector(".modal-title");
+    let modalBody = document.querySelector(".modal-body");
+    let titleContent = '';
+    let bodyContent = document.createElement('ul');
     if (itemId[0] === 't') {
         // If item is title
         // Set variables
@@ -151,7 +153,7 @@ function triggerModal(event, data) {
             if (key === 'primaryTitle') {
                 titleContent.innerHTML = value;
             } else {
-                let list = document.createElement(li);
+                let list = document.createElement('li');
                 list.innerHTML = value;
                 bodycontent.appendChild(list);
             }

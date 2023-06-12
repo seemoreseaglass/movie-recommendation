@@ -169,7 +169,7 @@ function triggerModal(event, data) {
             if (key === 'primaryName') {
                 titleContent.innerHTML = value;
             } else {
-                let list = document.createElement(li);
+                let list = document.createElement('li');
                 list.innerHTML = value;
                 bodyContent.appendChild(list);
             }
@@ -179,7 +179,7 @@ function triggerModal(event, data) {
     modalBody.innerHTML = bodyContent;
     
     // Make modal appear
-    modal.show;
+    modal.show();
 }
 
 // Export functions as 

@@ -82,7 +82,7 @@ async function search(input, activeRequest) {
     console.log("item: " + item);
     console.log("data: " + data);
     if (item != null && data != null) {
-        item.addEventListener('click', () => triggerModal(data));
+        item.addEventListener('click', (event) => triggerModal(data));
     }
     return data
 }

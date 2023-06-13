@@ -10,7 +10,7 @@ function createTableContents(data) {
                 let titleId = key;
                 let title = value['primaryTitle'].replace('<', '&lt;').replace('&', '&amp;');
                 let action = value['liked'] ? 'unlike' : 'like';
-                html_titles += '<tr><td class="result-item" id="\'' + titleId + '\'"><span>' + title + '</span></td><td><button class="like" data-id="' + titleId + '">' + action + '</button></td></tr>';
+                html_titles += '<tr><td class="result-item"><span id="' + titleId + '">' + title + '</span></td><td><button class="like" data-id="' + titleId + '">' + action + '</button></td></tr>';
             }
 
         }
@@ -21,7 +21,7 @@ function createTableContents(data) {
                 let personId = key;
                 let primaryName = value['primaryName'].replace('<', '&lt;').replace('&', '&amp;');
                 let action = value['liked'] ? 'unlike' : 'like';
-                html_names += '<tr><td class="result-item" id="\'' + personId + '\'"><span>' + primaryName + '</span></td><td><button class="like" data-id="' + personId + '">' + action + '</button></td></tr>';
+                html_names += '<tr><td class="result-item"><span id="' + personId + '">' + primaryName + '</span></td><td><button class="like" data-id="' + personId + '">' + action + '</button></td></tr>';
             }
         }
     } else {
@@ -70,11 +70,13 @@ async function search(input, activeRequest) {
         if (request === activeRequest) {
             createTableContents(data, input);
             activeRequest = null;
-            let item = document.querySelector(".result-item")
-            console.log("item: " + item);
+            let items = document.querySelectorAll(".result-item span")
+            console.log("item: " + items);
             console.log("data: " + data);
-            if (item != null && data != null) {
-                item.addEventListener('click', (event) => triggerModal(data));
+            if (items.length > 0 && data != null) {
+                items.forEach(item => {
+                    item.addEventListener('click', (event) => triggerModal(event, data));
+                });
             }
         }
     } catch (error) {
@@ -173,46 +175,61 @@ function triggerModal(event, data) {
     console.log("I'm gonna print the event")
     console.log("event: " + event);
     let itemId = event.target.id;
+    console.log("itemId: " + itemId);
     let modal = document.getElementById("exampleModal");
+    console.log("modal: " + modal);
     let modalTitle = document.querySelector(".modal-title");
+    console.log("modalTitle: " + modalTitle);
     let modalBody = document.querySelector(".modal-body");
+    console.log("modalBody: " + modalBody);
     let titleContent = '';
     let bodyContent = document.createElement('ul');
+    console.log("itemId[0]: " + itemId[0]);
     if (itemId && itemId[0] === 't') {
         // If item is title
         // Set variables
-        data = data['titles'][itemId];
-        for (const [key, value] of Object.entries(data)) {
+        let itemData = data['titles'][itemId];
+        console.log("itemData: " + itemData);
+        for (const [key, value] of Object.entries(itemData)) {
             if (key === 'primaryTitle') {
-                titleContent.innerHTML = value;
+                console.log("key is: " + key);
+                console.log("value is: " + value);
+                titleContent = value;
             } else {
                 let list = document.createElement('li');
-                list.textContent = value;
+                list.textContent = key + ':' + value;
+                console.log("value is: " + value);
+                console.log("list: " + list);
                 bodyContent.appendChild(list);
             }
         }
     } else if (itemId) {
         // If item is person
         // Set variables
-        data = data['names'][itemId];
-        for (const [key, value] of Object.entries(data)) {
+        let itemData = data['names'][itemId];
+        console.log("itemData: " + itemData);
+        for (const [key, value] of Object.entries(itemData)) {
             if (key === 'primaryName') {
-                titleContent.innerHTML = value;
+                titleContent = value;
             } else {
                 let list = document.createElement('li');
-                list.textContent = value;
+                list.textContent = key + ':' + value;
                 bodyContent.appendChild(list);
             }
         }
     }
 
-    modalTitle.innerHTML = titleContent;
-    modalBody.innerHTML = '';
-    modalBody.innerHTML = bodyContent;
+    modalTitle.textContent = titleContent;
+    modalBody.textContent = '';
+    modalBody.innerHTML = bodyContent.outerHTML;
+    console.log("modalBody: " + modalBody);
+    console.log("modalTitle: " + modalTitle);
     
     // Make modal appear
     if (modal) {
-        modal.classList.add('show');
+        let modalInstance = new bootstrap.Modal(modal, {});
+        modalInstance.show();
+        console.log("modal should be showing");
     }
 }
 

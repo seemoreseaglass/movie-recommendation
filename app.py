@@ -211,11 +211,16 @@ def search():
                     FROM name_basics nb
                     LEFT JOIN likes l ON nb.id = l.itemId
                     AND l.userId = :userId
-                    WHERE LIKE :primaryName 
+                    WHERE nb.primaryName LIKE :primaryName
+                    ORDER BY nb.primaryName DESC LIMIT 10
                     """)
                     
                     rows = db_conn.execute(create_txt, {"userId": session["user_id"], "primaryName": q}).fetchall()
-                    data["names"][row.personId] = dict({"primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownForTitles": row.knownForTitles, "liked":row.liked})
+                    for row in rows:
+                        if cancel_flag:
+                            return jsonify({'message': 'Query canceled'})
+
+                        data["names"][row.personId] = dict({"primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownForTitles": row.knownForTitles, "liked":row.liked})
 
                     print("Stored data in data['names']")
 

@@ -70,6 +70,12 @@ async function search(input, activeRequest) {
         if (request === activeRequest) {
             createTableContents(data, input);
             activeRequest = null;
+            let item = document.querySelector(".result-item")
+            console.log("item: " + item);
+            console.log("data: " + data);
+            if (item != null && data != null) {
+                item.addEventListener('click', (event) => triggerModal(data));
+            }
         }
     } catch (error) {
         // Handle any errors
@@ -78,12 +84,7 @@ async function search(input, activeRequest) {
         // Reset the active request to null
         activeRequest = null;
     }
-    let item = document.querySelector(".result-item")
-    console.log("item: " + item);
-    console.log("data: " + data);
-    if (item != null && data != null) {
-        item.addEventListener('click', (event) => triggerModal(data));
-    }
+    
     return data
 }
 

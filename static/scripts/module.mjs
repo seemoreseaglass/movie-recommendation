@@ -35,17 +35,12 @@ function createTableContents(data) {
 
 
     // Bind the event listener to the parent element using event delegation
-    let table = document.querySelector('.q-result-titles');
-    table.addEventListener('click', (event) => {
-        if (event.target.classList.contains('like')) {
-            let itemId = event.target.dataset.id;
-            helpers.likeUnlike(event, itemId, 'like');
-        } else if (event.target.classList.contains('unlike')) {
-            let itemId = event.target.dataset.id;
-            helpers.likeUnlike(event, itemId, 'unlike');
-        }
+    let likebtn = document.querySelector('.q-result button');
+    likebtn.addEventListener('click', (event) => {
+        let itemId = event.target.dataset.id;
+        helpers.likeUnlike(event, itemId);
     });
-        }
+}
 
 async function search(input, activeRequest) {
     // Check if there's an active request, and if so, abort it
@@ -91,8 +86,10 @@ async function search(input, activeRequest) {
 }
 
 
-async function likeUnlike(event, itemId, action) {
+async function likeUnlike(event, itemId) {
     event.preventDefault();
+    let action = 'like'
+    event.target.classList.contains('like') ? action = 'like' : action = 'unlike';
 
     // Send request
     let requestData = {
@@ -185,6 +182,7 @@ function triggerModal(event, data) {
     let titleContent = '';
     let bodyContent = document.createElement('ul');
     console.log("itemId[0]: " + itemId[0]);
+    let liked = null;
     if (itemId && itemId[0] === 't') {
         // If item is title
         // Set variables
@@ -195,6 +193,8 @@ function triggerModal(event, data) {
                 console.log("key is: " + key);
                 console.log("value is: " + value);
                 titleContent = value;
+            } else if (key === 'liked') {
+                liked = value;
             } else {
                 let list = document.createElement('li');
                 list.textContent = key + ':' + value;
@@ -211,6 +211,8 @@ function triggerModal(event, data) {
         for (const [key, value] of Object.entries(itemData)) {
             if (key === 'primaryName') {
                 titleContent = value;
+            } else if (key === 'liked') {
+                liked = value;
             } else {
                 let list = document.createElement('li');
                 list.textContent = key + ':' + value;
@@ -224,7 +226,7 @@ function triggerModal(event, data) {
     modalBody.innerHTML = bodyContent.outerHTML;
     console.log("modalBody: " + modalBody);
     console.log("modalTitle: " + modalTitle);
-    
+
     // Make modal appear
     if (modal) {
         let modalInstance = new bootstrap.Modal(modal, {});

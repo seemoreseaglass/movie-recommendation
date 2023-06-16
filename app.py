@@ -216,11 +216,31 @@ def search():
                     """)
                     
                     rows = db_conn.execute(create_txt, {"userId": session["user_id"], "primaryName": q}).fetchall()
+                    
                     for row in rows:
                         if cancel_flag:
                             return jsonify({'message': 'Query canceled'})
 
-                        data["names"][row.personId] = dict({"primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownForTitles": row.knownForTitles, "liked":row.liked})
+                        # Get Primary Title for "knownForTitles" column
+                        if row.knownForTitles:
+
+                            # Split knownForTitles into list, striping '\r' of the last element
+                            knownForTitles = row.knownForTitles.strip('\r').split(',')
+                            newKnownForTitles = [f'{title}' for title in knownForTitles]
+
+                            # Create string of knownForTitles to use in SQL query, adding quotes otherwise SQL will not recognize it as a string
+                            newKnownForTitles = "', '".join(newKnownForTitles)
+                            newKnownForTitles = "'" + newKnownForTitles + "'"
+
+                            # Query database for primaryTitle
+                            create_txt = sqlalchemy.text(f"SELECT primaryTitle FROM title_basics WHERE id IN ({newKnownForTitles})")
+                            result = db_conn.execute(create_txt).fetchall()                            
+                            primaryTitles = [row[0] for row in result]
+                            primaryTilesString = ', '.join(primaryTitles)
+                        else:
+                            primaryTilesString = None
+                                                
+                        data["names"][row.personId] = dict({"primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownFor": primaryTilesString, "liked":row.liked})
 
                     print("Stored data in data['names']")
 

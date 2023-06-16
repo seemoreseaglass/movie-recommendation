@@ -5,9 +5,12 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from flask import Flask, redirect, render_template, request, session, flash, jsonify
 from flask_session import Session
 import json
+import threading
 
 # Configure app
 app = Flask(__name__)
+current_query_lock = threading.Lock() # Lock for current_query
+cancel_flag = False # Flag to cancel current query
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -142,96 +145,116 @@ def register():
 
 @app.route("/search")
 def search():
-    q = request.args.get("q")
-    if q:
-        with pool.connect() as db_conn:
+    # Set cancellation flag and acquire the lock
+    global cancel_flag
+    cancel_flag = False
+    current_query_lock.acquire()
 
-            shows = {'titles': [], 'names': []}
-            
-            q = '%' + q + '%'
+    try:
+        if cancel_flag:
+            return jsonify({'message': 'Query canceled'})   
+        q = request.args.get("q")
+        if q:
+            with pool.connect() as db_conn:
 
-            # Query database by titles
-            create_txt = sqlalchemy.text("""
-                SELECT EXISTS (SELECT 1 FROM title_basics WHERE primaryTitle LIKE :primaryTitle) AS movie_exist
-            """)
-            print("Checking if", q, "exists in title_basics table...")
-            result = db_conn.execute(create_txt, {"primaryTitle": q}).fetchall()
+                data = {'titles': {}, 'names': {}}
+                
+                q = '%' + q + '%'
 
-            if result[0][0] == 1:
-                print("Found", q, "in title_basics table. Retrieving data...")
+                # Query database by titles
                 create_txt = sqlalchemy.text("""
-                SELECT id, primaryTitle FROM title_basics tb 
-                INNER JOIN title_rating tr ON tr.titleId = tb.id
-                WHERE primaryTitle LIKE :primaryTitle
-                ORDER BY tr.averageRating DESC LIMIT 5
+                    SELECT EXISTS (SELECT 1 FROM title_basics WHERE primaryTitle LIKE :primaryTitle) AS movie_exist
                 """)
-                rows = db_conn.execute(create_txt, {"primaryTitle": q}).fetchall()
-                shows['titles'] = [{"titleId":row.id, "primaryTitle":row.primaryTitle} for row in rows]
-                print("Stored data in shows['titles']")
+                print("Checking if", q, "exists in title_basics table...")
+                result = db_conn.execute(create_txt, {"primaryTitle": q}).fetchall()
 
-                # Check if titleId and userId exists in likes table 
-                print("Checking if each titleId and userId exists in likes table...")
-                for show in shows['titles']:
+                if result[0][0] == 1:
+                    print("Found", q, "in title_basics table. Retrieving data...")
+                    
                     create_txt = sqlalchemy.text("""
-                    SELECT EXISTS (SELECT 1 FROM likes WHERE itemId = :titleId AND userId = :userId) AS liked
+                    SELECT tb.id as titleId, tb.primaryTitle, tb.titleType, averageRating, startYear, genres, l.userId IS NOT NULL AS liked
+                    FROM title_basics tb 
+                    INNER JOIN title_rating tr ON tr.titleId = tb.id
+                    INNER JOIN title_principals tp ON tp.titleId = tb.id
+                    LEFT JOIN likes l ON tb.id = l.itemId
+                    AND l.userId = :userId
+                    WHERE primaryTitle LIKE :primaryTitle
+                    ORDER BY tr.averageRating DESC LIMIT 10
                     """)
-                    result = db_conn.execute(create_txt, {"titleId": show['titleId'], "userId": session["user_id"]}).fetchall()
+                    
+                    rows = db_conn.execute(create_txt, {"primaryTitle": q, "userId": session['user_id']}).fetchall()
+                    for row in rows:
+                        if cancel_flag:
+                            return jsonify({'message': 'Query canceled'})
+                        
+                        data['titles'][row.titleId] = dict({"primaryTitle":row.primaryTitle, "titleType":row.titleType, "averageRating":row.averageRating, "startYear":row.startYear, "genres":row.genres, "liked":row.liked})
+                    
+                    print("Stored data in data['titles']")
 
-                    if result[0][0] == 1:
-                        show['liked'] = True
-
-                    else:
-                        show['liked'] = False
-                print("Stored 'liked' data in shows['titles']")
-
-            else:
-                print("No movie found")
-            
-            # Query database by names
-            create_txt = sqlalchemy.text("""
-                SELECT EXISTS (SELECT 1 FROM name_basics WHERE primaryName LIKE :primaryName) AS person_exist
-            """)
-            print("Checking if", q, "exists in name_basics table...")
-            result = db_conn.execute(create_txt, {"primaryName": q}).fetchall()
-
-            if result[0][0] == 1:
-                print("Found", q, "in name_basics table. Retrieving data...")
+                else:
+                    print("No movie found")
+                
+                # Query database by names
                 create_txt = sqlalchemy.text("""
-                SELECT tb.id as titleId, tb.primaryTitle, nb.id as personId, nb.primaryName
-                FROM title_basics tb
-                INNER JOIN title_rating tr ON tr.titleId = tb.id
-                INNER JOIN title_principals tp ON tp.titleId = tb.id
-                INNER JOIN name_basics nb ON nb.id = tp.personId
-                AND nb.primaryName LIKE :primaryName
-                ORDER BY tr.averageRating DESC LIMIT 5
+                    SELECT EXISTS (SELECT 1 FROM name_basics WHERE primaryName LIKE :primaryName) AS person_exist
                 """)
-                rows = db_conn.execute(create_txt, {"primaryName": q}).fetchall()
-                shows["names"] = [{"titleId":row.titleId, "primaryTitle":row.primaryTitle, "personId":row.personId, "primaryName":row.primaryName} for row in rows]
-                print("Stored data in shows['names']")
-
-                # Check if titleId and userId exists in likes table
-                print("Checking if each titleId and userId exists in likes table...")
-                for show in shows["names"]:
-                    print(show)
+                
+                print("Checking if", q, "exists in name_basics table...")
+                
+                result = db_conn.execute(create_txt, {"primaryName": q}).fetchall()
+                if result[0][0] == 1:
+                
+                    print("Found", q, "in name_basics table. Retrieving data...")
+                
                     create_txt = sqlalchemy.text("""
-                    SELECT EXISTS (SELECT 1 FROM likes WHERE itemId = :titleId AND userId = :userId) AS liked
+                    SELECT nb.id as personId, nb.primaryName, birthYear, deathYear, primaryProfession, knownForTitles, l.userId IS NOT NULL AS liked
+                    FROM name_basics nb
+                    LEFT JOIN likes l ON nb.id = l.itemId
+                    AND l.userId = :userId
+                    WHERE nb.primaryName LIKE :primaryName
+                    ORDER BY nb.primaryName DESC LIMIT 10
                     """)
-                    result = db_conn.execute(create_txt, {"titleId": show["titleId"], "userId": session["user_id"]}).fetchall()
+                    
+                    rows = db_conn.execute(create_txt, {"userId": session["user_id"], "primaryName": q}).fetchall()
+                    
+                    for row in rows:
+                        if cancel_flag:
+                            return jsonify({'message': 'Query canceled'})
 
-                    if result[0][0] == 1:
-                        show["liked"] = True
+                        # Get Primary Title for "knownForTitles" column
+                        if row.knownForTitles:
 
-                    else:
-                        show["liked"] = False
-                print("Stored 'liked' data in shows['names']")
+                            # Split knownForTitles into list, striping '\r' of the last element
+                            knownForTitles = row.knownForTitles.strip('\r').split(',')
+                            newKnownForTitles = [f'{title}' for title in knownForTitles]
 
-            else:
-                print("No person found")
+                            # Create string of knownForTitles to use in SQL query, adding quotes otherwise SQL will not recognize it as a string
+                            newKnownForTitles = "', '".join(newKnownForTitles)
+                            newKnownForTitles = "'" + newKnownForTitles + "'"
 
-    else:
-        shows = {}
+                            # Query database for primaryTitle
+                            create_txt = sqlalchemy.text(f"SELECT primaryTitle FROM title_basics WHERE id IN ({newKnownForTitles})")
+                            result = db_conn.execute(create_txt).fetchall()                            
+                            primaryTitles = [row[0] for row in result]
+                            primaryTilesString = ', '.join(primaryTitles)
+                        else:
+                            primaryTilesString = None
+                                                
+                        data["names"][row.personId] = dict({"primaryName":row.primaryName, "birthYear": row.birthYear, "deathYear":row.deathYear, "primaryProfession": row.primaryProfession, "knownFor": primaryTilesString, "liked":row.liked})
 
-    return jsonify(shows)
+                    print("Stored data in data['names']")
+
+                else:
+                    print("No person found")
+
+        else:
+            data = {}
+    
+    finally:
+        # Release the lock
+        current_query_lock.release()
+
+    return jsonify(data)
 
 
 @app.route("/like", methods=["POST"])

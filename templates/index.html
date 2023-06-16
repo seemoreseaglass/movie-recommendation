@@ -5,166 +5,32 @@
 {% block body %}
 
     <input class="input_query" autocomplete="off" autofocus placeholder="Query" type="text">
-    <div>
-        <h2>Top titles titled with '<span class="q-input"></span>'</h2>
+    <div class="q-result">
+        <h2>Titles</h2>
         <table>
             <thead><tr><th>Title</th></tr></thead>
             <tbody class="q-result-titles"></tbody>
         </table>
-        <h2>Top titles starred by '<span class="q-input"></span>'</h2>
+        <h2>People</h2>
         <table>
             <thead><tr><th>Title</th></tr></thead>
             <tbody class="q-result-names"></tbody>
         </table>
     </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">primaryName</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body"> ...</div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+    </div>
 
-    <script>
-
-        // Display results
-        function displayResults(shows) {
-            let html_titles = '';
-            let html_names = '';
-            if (Object.keys(shows).length != 0) {
-
-                // Generate html for titles query
-                if (shows.titles.length != 0) {
-                    let titles = shows.titles;
-                    for (let i in titles) {
-                        let titleId = titles[i].titleId;
-                        let title = titles[i].primaryTitle.replace('<', '&lt;').replace('&', '&amp;');
-                        let action = titles[i].liked ? 'unlike' : 'like';
-                        html_titles += '<tr><td>' + title + '</td><td><button class="like" onclick="likeAction(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
-                    }
-
-                }
-                // Generate html for principals query
-                if (shows.names.length != 0) {
-                    let names = shows.names;
-                    for (let i in names) {
-                        let titleId = names[i].titleId;
-                        let title = names[i].primaryTitle.replace('<', '&lt;').replace('&', '&amp;');
-                        let personId = names[i].personId;
-                        let primaryName = names[i].primaryName.replace('<', '&lt;').replace('&', '&amp;');
-                        let action = names[i].liked ? 'unlike' : 'like';
-                        html_names += '<tr><td>' + title + '</td><td><button class="like" onclick="likeAction(event, \'' + titleId + '\', \'' + action + '\')">' + action + '</button></td></tr><tr><td>' + primaryName + '</td><td><button class="like" onclick="likeAction(event, \'' + personId + '\', \'' + action + '\')">' + action + '</button></td></tr>';
-                    }
-                }
-            } else {
-                html_titles = 'titles including"' + input.value + '" is not found';
-                html_names = 'titles with principals named"' + input.value + '" is not found';
-            }
-
-            // Update page
-            document.querySelector('.q-result-titles').innerHTML = html_titles;
-            document.querySelector('.q-result-names').innerHTML = html_names;
-            document.querySelectorAll('.q-input')[0].innerHTML = input.value;
-            document.querySelectorAll('.q-input')[1].innerHTML = input.value;
-        }
-
-        // Search
-        let input = document.querySelector('.input_query');
-        let activeRequest = null;
-
-        input.addEventListener('input', async function() {
-            // Check if there's an active request, and if so, abort it
-            if (activeRequest) {
-                activeRequest.abort();
-            }
-
-            // Create a new request and store it as the active request
-            let request = new Request('/search?q=' + input.value);
-            activeRequest = request;
-
-            try {
-                let response = await fetch(request);
-                let shows = await response.json();
-
-                // Check if the current request is still the active request
-                if (request === activeRequest) {
-                    displayResults(shows);
-                    activeRequest = null;
-                }
-            } catch (error) {
-                // Handle any errors
-                console.error(error);
-
-                // Reset the active request to null
-                activeRequest = null;
-            }
-        });
-
-        // Like button
-        async function likeAction(event, itemId, action) {
-            event.preventDefault();
-            
-            // Send request
-            let requestData = {
-                itemId: itemId,
-                action: action
-            };
-
-            // Get response
-            let response = await fetch('/like', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            });
-            
-            // Update button
-            let result = await response.json();
-            if (result.status === 'Liked') {
-                event.target.textContent = 'unlike';
-                event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'unlike')`);
-            } else if (result.status === 'Unliked') {
-                event.target.textContent = 'like';
-                event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'like')`);
-            } else if (typeof result.error !== 'undefined') {
-                let alertDiv = document.querySelector('.alert-div');
-                
-                // Create the alert element
-                let alertElement = document.createElement('div');
-                alertElement.className = 'alert alert-warning mb-0 text-center';
-                alertElement.textContent = result.error;
-                
-                // Append the alert element to the alert-div
-                alertDiv.appendChild(alertElement);
-                
-                // Fade out after 2 seconds
-                setTimeout(function() {
-                    alertElement.classList.add('fade');
-                    alertElement.style.transition = 'opacity 0.5s';
-                    alertElement.style.opacity = 0;
-                    
-                    setTimeout(function() {
-                        alertDiv.removeChild(alertElement);
-                    }, 500); // Remove the alert element from the DOM after fade out
-                }, 2000); // Fade out after 2 seconds
-            } else {
-                let alertDiv = document.querySelector('.alert-div');
-                
-                // Create the alert element
-                let alertElement = document.createElement('div');
-                alertElement.className = 'alert alert-warning mb-0 text-center';
-                alertElement.textContent = "Something went wrong. Please try again later.";
-
-                // Append the alert element to the alert-div
-                alertDiv.appendChild(alertElement);
-                
-                // Fade out after 2 seconds
-                setTimeout(function() {
-                    alertElement.classList.add('fade');
-                    alertElement.style.transition = 'opacity 0.5s';
-                    alertElement.style.opacity = 0;
-                    
-                    setTimeout(function() {
-                        alertDiv.removeChild(alertElement);
-                    }, 500); // Remove the alert element from the DOM after fade out
-                }, 2000); // Fade out after 2 seconds
-            }
-        };
-        
-    </script>
+    <script type="module" src="./../static/scripts/main.mjs"></script>
 
 {% endblock %}

@@ -182,10 +182,9 @@ function triggerModal(event, data) {
             } else if (key === 'liked') {
                 liked = value;
             } else {
+                let newkey = sliceCamelCase(key);
                 let list = document.createElement('li');
-                list.textContent = key + ':' + value;
-                console.log("value is: " + value);
-                console.log("list: " + list);
+                list.textContent = newkey + ': ' + value;
                 bodyContent.appendChild(list);
             }
         }
@@ -193,15 +192,15 @@ function triggerModal(event, data) {
         // If item is person
         // Set variables
         let itemData = data['names'][itemId];
-        console.log("itemData: " + itemData);
         for (const [key, value] of Object.entries(itemData)) {
             if (key === 'primaryName') {
                 titleContent = value;
             } else if (key === 'liked') {
                 liked = value;
             } else {
+                let newkey = sliceCamelCase(key);
                 let list = document.createElement('li');
-                list.textContent = key + ':' + value;
+                list.textContent = newkey + ': ' + value;
                 bodyContent.appendChild(list);
             }
         }
@@ -219,7 +218,34 @@ function triggerModal(event, data) {
     }
 }
 
-
+function sliceCamelCase(camelCaseStr) {
+    let tmp = '';
+    let name = '';
+    let lastSliceIndex = 0;
+    let lastWord = '';
+    for (var i = 0; i < camelCaseStr.length; i++) {
+        if (camelCaseStr[i] === camelCaseStr[i].toUpperCase()) {
+            if (name === '') {
+            tmp = camelCaseStr.slice(lastSliceIndex, i);
+            lastWord = camelCaseStr.slice(i);
+            name = tmp;
+            lastSliceIndex = i;
+        } else {
+            tmp = camelCaseStr.slice(lastSliceIndex, i);
+            lastWord = camelCaseStr.slice(i);
+            name = name + ' ' + tmp;
+            lastSliceIndex = i;
+            }
+        }
+    }
+    if (name === '') {
+        name = camelCaseStr;
+    } else {
+        name = name + ' ' + lastWord;
+    }
+    name = name.toLowerCase();
+    return name;
+}
 
 // Export functions as 
 

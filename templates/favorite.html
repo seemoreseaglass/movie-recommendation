@@ -3,22 +3,17 @@
 {% block title %}Favorite{% endblock %}
 {% block body %}
 
-    <div>
+    <div class="body-content">
         <nav>
             <div class="nav nav-tabs" id="fav-tab" role="tablist">
               <a class="nav-link active" id="fav-titles-tab" data-bs-toggle="tab" href="#fav-titles" role="tab" aria-controls="fav-titles" aria-selected="true">Titles</a>
-              <a class="nav-link" id="fav-persons-tab" data-bs-toggle="tab" href="#fav-persons" role="tab" aria-controls="fav-persons" aria-selected="false">Persons</a>
+              <a class="nav-link" id="fav-persons-tab" data-bs-toggle="tab" href="#fav-persons" role="tab" aria-controls="fav-persons" aria-selected="false">People</a>
             </div>
         </nav>
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="fav-titles" role="tabpanel" aria-labelledby="home-tab">
-                <h2>Your favorite titles</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                        </tr>
-                    </thead>
+                <table class="query-table">
+                    <thead></thead>
                     <tbody class="favorite-titles">
                         {% for title in likes['titles'] %}
                             <tr>
@@ -36,13 +31,8 @@
                 </table>
             </div>
             <div class="tab-pane fade" id="fav-persons" role="tabpanel" aria-labelledby="profile-tab">
-                <h2>Your favorite people</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                        </tr>
-                    </thead>
+                <table class="query-table">
+                    <thead></thead>
                     <tbody class="favorite-names">
                         {% for name in likes['names'] %}
                             <tr>

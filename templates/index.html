@@ -5,31 +5,19 @@
 {% block body %}
 
     <input class="input_query" autocomplete="off" autofocus placeholder="Query" type="text">
-    <div class="q-result">
-        <h2>Titles</h2>
-        <table>
-            <thead><tr><th>Title</th></tr></thead>
+    <div class="q-result body-content">
+        <h3 id="title-header"></h3>
+        <table class="query-table">
+            <thead><tr><th></th></tr></thead>
             <tbody class="q-result-titles"></tbody>
         </table>
-        <h2>People</h2>
-        <table>
-            <thead><tr><th>Title</th></tr></thead>
+        <h3 id="name-header"></h3>
+        <table class="query-table">
+            <thead><tr><th></th></tr></thead>
             <tbody class="q-result-names"></tbody>
         </table>
     </div>
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">primaryName</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body"> ...</div>
-                <div class="modal-footer"></div>
-            </div>
-        </div>
-    </div>
+
 
     <script type="module" src="./../static/scripts/main.mjs"></script>
 

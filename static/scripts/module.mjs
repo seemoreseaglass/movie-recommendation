@@ -36,10 +36,12 @@ function createTableContents(data) {
 
     // Bind the event listener to the parent element using event delegation
     let likebtn = document.querySelector('.q-result button');
-    likebtn.addEventListener('click', (event) => {
-        let itemId = event.target.dataset.id;
-        helpers.likeUnlike(event, itemId);
-    });
+    if (likebtn != null) {
+        likebtn.addEventListener('click', (event) => {
+            let itemId = event.target.dataset.id;
+            likeUnlike(event, itemId);
+        });
+    }
 }
 
 async function search(input, activeRequest) {

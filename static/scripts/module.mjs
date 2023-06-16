@@ -30,9 +30,10 @@ function createTableContents(data) {
     }
 
     // Update page
+    document.getElementById('title-header').textContent = 'Titles';
+    document.getElementById('name-header').textContent = 'People';
     document.querySelector('.q-result-titles').innerHTML = html_titles;
     document.querySelector('.q-result-names').innerHTML = html_names;
-
 
     // Bind the event listener to the parent element using event delegation
     let likebtn = document.querySelector('.q-result button');

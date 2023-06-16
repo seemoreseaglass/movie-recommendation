@@ -68,8 +68,6 @@ async function search(input, activeRequest) {
             createTableContents(data, input);
             activeRequest = null;
             let items = document.querySelectorAll(".result-item span")
-            console.log("item: " + items);
-            console.log("data: " + data);
             if (items.length > 0 && data != null) {
                 items.forEach(item => {
                     item.addEventListener('click', (event) => triggerModal(event, data));
@@ -166,34 +164,20 @@ async function likeUnlike(event, itemId) {
 
 
 function triggerModal(event, data) {
-    if (event === undefined) {
-        console.log("event is undefined");
-    }
-    console.log("target is: " + event.target);
     event.preventDefault();
-    console.log("I'm gonna print the event")
-    console.log("event: " + event);
     let itemId = event.target.id;
-    console.log("itemId: " + itemId);
     let modal = document.getElementById("exampleModal");
-    console.log("modal: " + modal);
     let modalTitle = document.querySelector(".modal-title");
-    console.log("modalTitle: " + modalTitle);
     let modalBody = document.querySelector(".modal-body");
-    console.log("modalBody: " + modalBody);
     let titleContent = '';
     let bodyContent = document.createElement('ul');
-    console.log("itemId[0]: " + itemId[0]);
     let liked = null;
     if (itemId && itemId[0] === 't') {
         // If item is title
         // Set variables
         let itemData = data['titles'][itemId];
-        console.log("itemData: " + itemData);
         for (const [key, value] of Object.entries(itemData)) {
             if (key === 'primaryTitle') {
-                console.log("key is: " + key);
-                console.log("value is: " + value);
                 titleContent = value;
             } else if (key === 'liked') {
                 liked = value;
@@ -226,8 +210,6 @@ function triggerModal(event, data) {
     modalTitle.textContent = titleContent;
     modalBody.textContent = '';
     modalBody.innerHTML = bodyContent.outerHTML;
-    console.log("modalBody: " + modalBody);
-    console.log("modalTitle: " + modalTitle);
 
     // Make modal appear
     if (modal) {

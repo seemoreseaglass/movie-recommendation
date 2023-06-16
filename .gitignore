@@ -16,3 +16,6 @@ package.json
 
 # Ignore all file in flask_session folder
 flask_session/
+
+# Ignore database connection file
+sql_helpers.py

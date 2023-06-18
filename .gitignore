@@ -1,5 +1,5 @@
 # venv
-venv/
+venv*/
 
 # Ignore all pycache folder
 **/__pycache__/
@@ -19,3 +19,6 @@ flask_session/
 
 # Ignore database connection file
 sql_helpers.py
+
+# Ignore all file in migrations folder
+.python-version

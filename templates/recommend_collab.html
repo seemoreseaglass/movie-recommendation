@@ -4,112 +4,41 @@
 
 {% block body %}
     <h1>Recommendation</h1>
-    <p>Here are some movies you might like.</p>
-    <table class="query-table">
-        <thead>
-            <tr>
-                <th>Titles</th>
-            </tr>
-        </thead>
-        <tbody class="collab-reco-titles">
-            {% for item in reco_collab['titles'] %}
+    <div class="q-result body-content">
+        
+        <p style="padding-top: 10px;">Here are some movies you might like.</p>
+        <table class="query-table">
+            <thead>
                 <tr>
-                    <td>{{ item.primaryTitle }}</td>
-                    <td><button class="like" onclick="likeAction(event, '{{ item.itemId }}', 'like')">like</button></td>
+                    <th>Titles</th>
                 </tr>
-            {% endfor %}
-        </tbody>  
-    </table>
-    <p>Here are some persons you might like.</p>
-    <table class="query-table">
-        <thead>
-            <tr>
-                <th>People</th>
-            </tr>
-        </thead>
-        <tbody class="collab-reco-persons">
-            {% for item in reco_collab['persons'] %}
+            </thead>
+            <tbody class="collab-reco-titles">
+                {% for item in reco_collab['titles'] %}
+                    <tr>
+                        <td>{{ item['primaryTitle'] }}</td>
+                        <td><button class="like" data-id="{{ item['itemId'] }}">Like</button></td>
+                    </tr>
+                {% endfor %}
+            </tbody>  
+        </table>
+        <p style="padding-top: 10px;">Here are some persons you might like.</p>
+        <table class="query-table">
+            <thead>
                 <tr>
-                    <td>{{ item.primaryName }}</td>
-                    <td><button class="like" onclick="likeAction(event, '{{ item.itemId }}', 'like')">like</button></td>
+                    <th>People</th>
                 </tr>
-            {% endfor %}
-        </tbody>  
-    </table>
-
-    <script>
-        // Like button
-        async function likeAction(event, itemId, action) {
-            event.preventDefault();
-            
-            // Send request
-            let requestData = {
-                itemId: itemId,
-                action: action
-            };
-
-            // Get response
-            let response = await fetch('/like', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            });
-            
-            // Update button
-            let result = await response.json();
-            if (result.status === 'Liked') {
-                event.target.textContent = 'unlike';
-                event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'unlike')`);
-            } else if (result.status === 'Unliked') {
-                event.target.textContent = 'like';
-                event.target.setAttribute('onclick', `likeAction(event, '${itemId}', 'like')`);
-            } else if (typeof result.error !== 'undefined') {
-                let alertDiv = document.querySelector('.alert-div');
-                
-                // Create the alert element
-                let alertElement = document.createElement('div');
-                alertElement.className = 'alert alert-warning mb-0 text-center';
-                alertElement.textContent = result.error;
-                
-                // Append the alert element to the alert-div
-                alertDiv.appendChild(alertElement);
-                
-                // Fade out after 2 seconds
-                setTimeout(function() {
-                    alertElement.classList.add('fade');
-                    alertElement.style.transition = 'opacity 0.5s';
-                    alertElement.style.opacity = 0;
-                    
-                    setTimeout(function() {
-                        alertDiv.removeChild(alertElement);
-                    }, 500); // Remove the alert element from the DOM after fade out
-                }, 2000); // Fade out after 2 seconds
-            } else {
-                let alertDiv = document.querySelector('.alert-div');
-                
-                // Create the alert element
-                let alertElement = document.createElement('div');
-                alertElement.className = 'alert alert-warning mb-0 text-center';
-                alertElement.textContent = "Something went wrong. Please try again later.";
-
-                // Append the alert element to the alert-div
-                alertDiv.appendChild(alertElement);
-                
-                // Fade out after 2 seconds
-                setTimeout(function() {
-                    alertElement.classList.add('fade');
-                    alertElement.style.transition = 'opacity 0.5s';
-                    alertElement.style.opacity = 0;
-                    
-                    setTimeout(function() {
-                        alertDiv.removeChild(alertElement);
-                    }, 500); // Remove the alert element from the DOM after fade out
-                }, 2000); // Fade out after 2 seconds
-            }
-        };
-
-    </script>
+            </thead>
+            <tbody class="collab-reco-persons">
+                {% for item in reco_collab['persons'] %}
+                    <tr>
+                        <td>{{ item['primaryName'] }}</td>
+                        <td><button class="like" data-id="{{ item['itemId'] }}">Like</button></td>
+                    </tr>
+                {% endfor %}
+            </tbody>  
+        </table>
+    </div>
+    <script type="module" src="./../static/scripts/main.mjs"></script>
 
 {% endblock %}

@@ -1,3 +1,17 @@
+function likebtnListenerBinder() {
+    // Bind the event listener to the parent element using event delegation
+    let likebtn = document.querySelectorAll('.q-result button');
+    if (likebtn != null) {
+        for (var i = 0; i < likebtn.length; i++) {
+            likebtn[i].addEventListener('click', (event) => {
+            let itemId = event.target.dataset.id;
+            likeUnlike(event, itemId);
+            });
+        }
+    }
+}
+
+
 function createTableContents(data) {
     let html_titles = '';
     let html_names = '';
@@ -35,14 +49,8 @@ function createTableContents(data) {
     document.querySelector('.q-result-titles').innerHTML = html_titles;
     document.querySelector('.q-result-names').innerHTML = html_names;
 
-    // Bind the event listener to the parent element using event delegation
-    let likebtn = document.querySelector('.q-result button');
-    if (likebtn != null) {
-        likebtn.addEventListener('click', (event) => {
-            let itemId = event.target.dataset.id;
-            likeUnlike(event, itemId);
-        });
-    }
+    // Bind event listener to like/unlike buttons
+    likebtnListenerBinder() 
 }
 
 async function search(input, activeRequest) {
@@ -251,6 +259,7 @@ function sliceCamelCase(camelCaseStr) {
 // Export functions as 
 
 export const helpers = {
+    likebtnListenerBinder: likebtnListenerBinder,
     search: search,
     likeUnlike: likeUnlike,
     triggerModal: triggerModal,

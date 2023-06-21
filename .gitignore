@@ -22,3 +22,5 @@ sql_helpers.py
 
 # Ignore all file in migrations folder
 .python-version
+load_dummy_users.py
+load_sample_collab.py

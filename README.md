@@ -1,15 +1,32 @@
-# Movie Recommendation
+# 🎞️Movie Recommendation🍿
 
 # Table of Contents
 
 - [Overview](#overview)
+- [Backstory](#backstory)
 - [Technologies](#technologies)
 - [Features](#features)
-- [Contact](#contact)
 - [Acknowledgements](#acknowledgements)
+- [Contact](#contact)
 
 # Overview
-This is the improved version of my CS50 final project, movie-recommendation web application where users can search and get recommendation from [imdb dataset](https://www.imdb.com/?ref_=nv_home). The major change is its recommending algorithm (from [content-based filtering](https://developers.google.com/machine-learning/recommendation/content-based/basics) to [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering)). In order to explore the maximum data of the dataset, I decided to create SQL server and hosted the project on Google Cloud. (Please note that the publishing will end or stop when the my free tier trial ends). 
+This project is my first portfolio, which is improved version of my final project for CS50, which I finished last year. It's designed to show what I learned through the course: basic web programming with python, javascript and HTML/CSS; data manipulation of SQL database etc. The application is a movie-recommendation system where users can search and get recommendations from [imdb dataset](https://www.imdb.com/?ref_=nv_home). 
+
+このプロジェクトは私の最初のポートフォリオで、昨年修了したCS50の修了プロジェクトの改良版です。コースで学習したPython、javascript、HTML/CSSを使った基本的なウェブプログラミング、SQLデータベースのデータ操作などのスキルを活かしています。アプリケーションの機能としては、ユーザーが[imdb dataset](https://www.imdb.com/?ref_=nv_home)から映画を検索してお勧めの映画を表示できるレコメンダーシステムです。
+
+# Backstory
+At the time I built it for CS50, the recommendation algorithm was [content-based filtering](https://developers.google.com/machine-learning/recommendation/content-based/basics), which simply shows users movie titles that stars user's favorite actors/actresses. 
+
+After completed CS50, I was keen to learn more about data engineering since I was fascinated when the first moment I saw fetched data, but what I built was far from something useful. I learned some pyhton libraries for data processing such as pandas and numpy. Now this project uses [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering), which enables users to find new interests.
+
+Additionally, I decided to change SQL language from SQLite to MYSQL since it seems to be [the most popular language](https://www.datacamp.com/blog/sql-server-postgresql-mysql-whats-the-difference-where-do-i-start). Currently, I'm using Google Cloud Platform to host the server and the database. 
+
+CS50のために作った当時のレコメンデーション・アルゴリズムは、[コンテンツベースフィルタリング](https://developers.google.com/machine-learning/recommendation/content-based/basics)というもので、単純にユーザーの好きな俳優が出演している映画を表示するものでした。
+
+CS50修了後、クエリに引っ張られてきたデータを見たときに感動する一方、私が作ったものは役に立つものから程遠いものだったため、データエンジニアリングについてもっと学びたいと思いました。実際にpandasやnumpyといったデータ処理用のPyhtonライブラリをいくつか学び、本プロジェクトでは[協調フィルタリング](https://en.wikipedia.org/wiki/Collaborative_filtering)を使っています。
+
+さらに、SQL言語をSQLiteから[最も人気のあるSQL言語](https://www.datacamp.com/blog/sql-server-postgresql-mysql-whats-the-difference-where-do-i-start)であるMYSQLに変更することにしました。現在、サーバーとデータベースのホストにはGoogle Cloud Platformを使っています。
+
 
 # Technologies
 <span style="color:#44D62C"> + technology additionally used </span><br />
@@ -22,18 +39,20 @@ This is the improved version of my CS50 final project, movie-recommendation web 
 |Version Control|<a href="https://git-scm.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + git </a>|
 |Hosting|<a href="https://cloud.google.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + Google Cloud Platform(App Engine & Cloud SQL)</a>|
 |Recommender Algorithm|<span style="color:red"> - Content-based Filtering</span> -> <span style="color:#44D62C"> + Collaborative Filtering(<a href="https://scikit-learn.org/stable/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;">scikit-learn</a>) |
-|CSS|<a href="https://getbootstrap.com/" style="color: #44D62C; text-decoration: underline;text-decoration-style: dotted;"> + Bootstrap 5.1.3</a>|
+|CSS|<a href="https://getbootstrap.com/"> Bootstrap 5.1.3</a>|
 
 # Features
-| |
-|:----|
-|User Registration & Authentication|
-|Query|
-|Liking|
-|Collaborative Filtering|
+| Features|機能|
+|:----|:----|
+|User Registration & Authentication |ユーザー登録と認証|
+|Query |クエリ|
+|Liking　|ライク機能|
+|Collaborative Filtering　|協調フィルタリング|
 
 # Contact
 Please message me if you find bugs or technical issues in my codes. That helps a lot.
+
+コードにバグや技術的な問題を見つけたら、ご連絡をいただけると大変助かります。
 <!-- TODO: Include icons and links to your RELEVANT, PROFESSIONAL 'DEV-ORIENTED' social media. LinkedIn and dev.to are minimum. -->
 [![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/hajime-ozawa-041884155/)
 

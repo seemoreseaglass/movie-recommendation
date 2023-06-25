@@ -19,14 +19,13 @@ At the time I built it for CS50, the recommendation algorithm was [content-based
 
 After completed CS50, I was keen to learn more about data engineering since I was fascinated when the first moment I saw fetched data, but what I built was far from something useful. I learned some pyhton libraries for data processing such as pandas and numpy. Now this project uses [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering), which enables users to find new interests.
 
-Additionally, I decided to change SQL language from SQLite to MYSQL since it seems to be [the most popular language](https://www.datacamp.com/blog/sql-server-postgresql-mysql-whats-the-difference-where-do-i-start). Currently, I'm using Google Cloud Platform to host the server and the database. 
+Additionally, I decided to change SQL language from SQLite to MYSQL since it seems to be [the most popular language](https://www.datacamp.com/blog/sql-server-postgresql-mysql-whats-the-difference-where-do-i-start). 
 
 CS50のために作った当時のレコメンデーション・アルゴリズムは、[コンテンツベースフィルタリング](https://developers.google.com/machine-learning/recommendation/content-based/basics)というもので、単純にユーザーの好きな俳優が出演している映画を表示するものでした。
 
 CS50修了後、クエリに引っ張られてきたデータを見たときに感動する一方、私が作ったものは役に立つものから程遠いものだったため、データエンジニアリングについてもっと学びたいと思いました。実際にpandasやnumpyといったデータ処理用のPyhtonライブラリをいくつか学び、本プロジェクトでは[協調フィルタリング](https://en.wikipedia.org/wiki/Collaborative_filtering)を使っています。
 
-さらに、SQL言語をSQLiteから[最も人気のあるSQL言語](https://www.datacamp.com/blog/sql-server-postgresql-mysql-whats-the-difference-where-do-i-start)であるMYSQLに変更することにしました。現在、サーバーとデータベースのホストにはGoogle Cloud Platformを使っています。
-
+さらに、SQL言語をSQLiteから[最も人気のあるSQL言語](https://www.datacamp.com/blog/sql-server-postgresql-mysql-whats-the-difference-where-do-i-start)であるMYSQLに変更することにしました。
 
 # Technologies
 <span style="color:#44D62C"> + technology additionally used </span><br />
@@ -37,7 +36,7 @@ CS50修了後、クエリに引っ張られてきたデータを見たときに�
 |Framework|<a href="https://flask.palletsprojects.com/en/2.3.x/" style="color:#44D62C text-decoration: underline;text-decoration-style: dotted;">Flask 2.3.2</a>|
 |Database|<span style="color:red"> - SQLite </span> -> <span style="color:#44D62C"> + MYSQL </span><br /><span style="color:#44D62C">+ DB Connecion & Execution(<a href="https://www.sqlalchemy.org/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> SQLAlchemy </a>, <a href="https://pypi.org/project/pymysql/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> PyMySQL </a>)</span>|
 |Version Control|<a href="https://git-scm.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + git </a>|
-|Hosting|<a href="https://cloud.google.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + Google Cloud Platform(App Engine & Cloud SQL)</a>|
+|Hosting|<a href="https://cloud.google.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + Google Cloud Platform(App Engine & Cloud SQL)(Will publish soon)</a>|
 |Recommender Algorithm|<span style="color:red"> - Content-based Filtering</span> -> <span style="color:#44D62C"> + Collaborative Filtering(<a href="https://scikit-learn.org/stable/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;">scikit-learn</a>) |
 |CSS|<a href="https://getbootstrap.com/"> Bootstrap 5.1.3</a>|
 

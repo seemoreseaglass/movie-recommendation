@@ -24,3 +24,6 @@ sql_helpers.py
 .python-version
 load_dummy_users.py
 load_sample_collab.py
+
+# Add app.yaml file
+app.yaml

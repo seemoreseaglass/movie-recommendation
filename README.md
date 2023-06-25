@@ -17,13 +17,13 @@ This project is my first portfolio, which is improved version of my final projec
 # Backstory
 At the time I built it for CS50, the recommendation algorithm was [content-based filtering](https://developers.google.com/machine-learning/recommendation/content-based/basics), which simply shows users movie titles that stars user's favorite actors/actresses. 
 
-After completed CS50, I was keen to learn more about data engineering since I was fascinated when the first moment I saw fetched data, but what I built was far from something useful. I learned some pyhton libraries for data processing such as pandas and numpy. Now this project uses [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering), which enables users to find new interests.
+After completed CS50, I was keen to learn more about data engineering since I was fascinated when the first moment I saw fetched data, but what I built was far from something useful. I learned some pyhton libraries for data processing such as pandas and numpy. Now this project uses [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering), which enables users to find new interests. For other user's liking data, which I don’t have actual one, I created a sample data from [MovieLens Latest Datasets(ml-latest-small.zip)](https://grouplens.org/datasets/movielens/latest/). Please check the details on [my kaggle notebook](https://www.kaggle.com/code/hajiiz/collab-sample-data)
 
 Additionally, I decided to change SQL language from SQLite to MYSQL since it seems to be [the most popular language](https://www.datacamp.com/blog/sql-server-postgresql-mysql-whats-the-difference-where-do-i-start). 
 
 CS50のために作った当時のレコメンデーション・アルゴリズムは、[コンテンツベースフィルタリング](https://developers.google.com/machine-learning/recommendation/content-based/basics)というもので、単純にユーザーの好きな俳優が出演している映画を表示するものでした。
 
-CS50修了後、クエリに引っ張られてきたデータを見たときに感動する一方、私が作ったものは役に立つものから程遠いものだったため、データエンジニアリングについてもっと学びたいと思いました。実際にpandasやnumpyといったデータ処理用のPyhtonライブラリをいくつか学び、本プロジェクトでは[協調フィルタリング](https://en.wikipedia.org/wiki/Collaborative_filtering)を使っています。
+CS50修了後、クエリに引っ張られてきたデータを見たときに感動する一方、私が作ったものは役に立つものから程遠いものだったため、データエンジニアリングについてもっと学びたいと思いました。実際にpandasやnumpyといったデータ処理用のPyhtonライブラリをいくつか学び、本プロジェクトでは[協調フィルタリング](https://en.wikipedia.org/wiki/Collaborative_filtering)を使っています。とはいえ、実際のユーザーのライキングに関するデータは持ち合わせていないので、MovieLens Latest Datasets(ml-latest-small.zip)](https://grouplens.org/datasets/movielens/latest/)からサンプルデータを作成しました。詳しくは[my kaggle notebook](https://www.kaggle.com/code/hajiiz/collab-sample-data)をご覧ください。
 
 さらに、SQL言語をSQLiteから[最も人気のあるSQL言語](https://www.datacamp.com/blog/sql-server-postgresql-mysql-whats-the-difference-where-do-i-start)であるMYSQLに変更することにしました。
 

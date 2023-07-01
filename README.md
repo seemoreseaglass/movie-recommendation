@@ -1,4 +1,6 @@
 # 🎞️Movie Recommendation🍿
+Now deployed on google cloud platform!
+[Link](https://movie-recommendation-386906.an.r.appspot.com/)
 
 # Table of Contents
 
@@ -6,6 +8,7 @@
 - [Backstory](#backstory)
 - [Technologies](#technologies)
 - [Features](#features)
+- [Get Started](#get_started)
 - [Acknowledgements](#acknowledgements)
 - [Contact](#contact)
 
@@ -36,7 +39,7 @@ CS50修了後、クエリに引っ張られてきたデータを見たときに�
 |Framework|<a href="https://flask.palletsprojects.com/en/2.3.x/" style="color:#44D62C text-decoration: underline;text-decoration-style: dotted;">Flask 2.3.2</a>|
 |Database|<span style="color:red"> - SQLite </span> -> <span style="color:#44D62C"> + MYSQL </span><br /><span style="color:#44D62C">+ DB Connecion & Execution(<a href="https://www.sqlalchemy.org/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> SQLAlchemy </a>, <a href="https://pypi.org/project/pymysql/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> PyMySQL </a>)</span>|
 |Version Control|<a href="https://git-scm.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + git </a>|
-|Hosting|<a href="https://cloud.google.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + Google Cloud Platform(App Engine & Cloud SQL)(Will publish soon)</a>|
+|Hosting|<a href="https://cloud.google.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + Google Cloud Platform(App Engine & Cloud SQL)</a>|
 |Recommender Algorithm|<span style="color:red"> - Content-based Filtering</span> -> <span style="color:#44D62C"> + Collaborative Filtering(<a href="https://scikit-learn.org/stable/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;">scikit-learn</a>) |
 |CSS|<a href="https://getbootstrap.com/"> Bootstrap 5.1.3</a>|
 
@@ -47,6 +50,13 @@ CS50修了後、クエリに引っ張られてきたデータを見たときに�
 |Query |クエリ|
 |Liking　|ライク機能|
 |Collaborative Filtering　|協調フィルタリング|
+
+# Get Started
+## 
+1. Visit [https://movie-recommendation-386906.an.r.appspot.com/](https://movie-recommendation-386906.an.r.appspot.com/)
+2. Create your account
+3. Search your favorite titles or actors, and like some
+4. Check the recommendation for you!(Click "Collaborative Filtering")
 
 # Contact
 Please message me if you find bugs or technical issues in my codes. That helps a lot.

@@ -1,4 +1,5 @@
 import sys
+import os
 import sqlalchemy
 from sql_helpers import getconn
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -9,18 +10,29 @@ import threading
 import pandas as pd
 import numpy as np
 from sklearn.metrics import jaccard_score
+import redis
+from config import SECRET_KEY
 
 # Configure app
 app = Flask(__name__)
 current_query_lock = threading.Lock() # Lock for current_query
 cancel_flag = False # Flag to cancel current query
 
+# Configure redis
+redis_host = os.environ.get('REDISHOST', 'localhost')
+redis_port = int(os.environ.get('REDISPORT', 6379))
+
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
+# Create a secret key
+app.secret_key = SECRET_KEY
+
 # Configure session
+app.config["SESSION_TYPE"] = "redis"
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_REDIS'] = redis.Redis(host=redis_host, port=redis_port)
 Session(app)
 
 
@@ -388,6 +400,7 @@ def recommend_collab():
         create_txt = sqlalchemy.text("""
             SELECT userId, itemId
             FROM likes
+            LIMIT 100
             """)
         print("Retrieving liking data...")
         rows = db_conn.execute(create_txt).fetchall()

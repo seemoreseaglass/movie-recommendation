@@ -25,5 +25,7 @@ sql_helpers.py
 load_dummy_users.py
 load_sample_collab.py
 
-# Add app.yaml file
+# Add configuration files
 app.yaml
+config.py
+

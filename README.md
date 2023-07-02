@@ -9,7 +9,6 @@ Now deployed on google cloud platform!
 - [Technologies](#technologies)
 - [Features](#features)
 - [Get Started](#get_started)
-- [Notes](#notes)
 - [Acknowledgements](#acknowledgements)
 - [Contact](#contact)
 
@@ -58,9 +57,6 @@ CS50修了後、クエリに引っ張られてきたデータを見たときに�
 2. Create your account
 3. Search your favorite titles or actors, and like some
 4. Check the recommendation for you!(Click "Collaborative Filtering")
-
-# Notes
-- [Configuration Flask-Session for app deployed on GAE with Memorystore for Redis](https://dev.to/seemoreseaglass/configuration-flask-session-for-app-deployed-on-gae-with-memorystore-for-redis-49pa)
 
 # Contact
 Please message me if you find bugs or technical issues in my codes. That helps a lot.

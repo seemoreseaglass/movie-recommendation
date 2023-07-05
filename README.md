@@ -1,6 +1,4 @@
 # 🎞️Movie Recommendation🍿
-Now deployed on google cloud platform!
-[Link](https://movie-recommendation-386906.an.r.appspot.com/)
 
 # Table of Contents
 
@@ -39,7 +37,7 @@ CS50修了後、クエリに引っ張られてきたデータを見たときに�
 |Framework|<a href="https://flask.palletsprojects.com/en/2.3.x/" style="color:#44D62C text-decoration: underline;text-decoration-style: dotted;">Flask 2.3.2</a>|
 |Database|<span style="color:red"> - SQLite </span> -> <span style="color:#44D62C"> + MYSQL </span><br /><span style="color:#44D62C">+ DB Connecion & Execution(<a href="https://www.sqlalchemy.org/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> SQLAlchemy </a>, <a href="https://pypi.org/project/pymysql/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> PyMySQL </a>)</span>|
 |Version Control|<a href="https://git-scm.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + git </a>|
-|Hosting|<a href="https://cloud.google.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + Google Cloud Platform(App Engine & Cloud SQL)</a>|
+|Hosting(Currently stop hosting)|<a href="https://cloud.google.com/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;"> + Google Cloud Platform(App Engine & Cloud SQL)</a>|
 |Recommender Algorithm|<span style="color:red"> - Content-based Filtering</span> -> <span style="color:#44D62C"> + Collaborative Filtering(<a href="https://scikit-learn.org/stable/" style="color:#44D62C; text-decoration: underline;text-decoration-style: dotted;">scikit-learn</a>) |
 |CSS|<a href="https://getbootstrap.com/"> Bootstrap 5.1.3</a>|
 

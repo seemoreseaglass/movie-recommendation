@@ -6,7 +6,6 @@
 - [Backstory](#backstory)
 - [Technologies](#technologies)
 - [Features](#features)
-- [Get Started](#get_started)
 - [Acknowledgements](#acknowledgements)
 - [Contact](#contact)
 
@@ -48,13 +47,6 @@ CS50修了後、クエリに引っ張られてきたデータを見たときに�
 |Query |クエリ|
 |Liking　|ライク機能|
 |Collaborative Filtering　|協調フィルタリング|
-
-# Get Started
-## 
-1. Visit [https://movie-recommendation-386906.an.r.appspot.com/](https://movie-recommendation-386906.an.r.appspot.com/)
-2. Create your account
-3. Search your favorite titles or actors, and like some
-4. Check the recommendation for you!(Click "Collaborative Filtering")
 
 # Contact
 Please message me if you find bugs or technical issues in my codes. That helps a lot.
